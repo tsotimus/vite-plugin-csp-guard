@@ -7,7 +7,7 @@ import {
   ShouldSkip,
   TransformationStatus,
 } from "../types";
-import { handleIndexHtml } from "./handleIndexHtml";
+import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
 import { PluginContext } from "rollup";
 import { generatePolicyString, policyToTag } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
@@ -114,6 +114,7 @@ export interface TransformIndexHtmlHandlerProps {
   isTransformationStatusEmpty: boolean;
   sri: boolean;
   shouldSkip: ShouldSkip;
+  isVite6?: boolean;
 }
 
 export const transformIndexHtmlHandler = async ({
@@ -126,6 +127,7 @@ export const transformIndexHtmlHandler = async ({
   isTransformationStatusEmpty,
   sri,
   shouldSkip,
+  isVite6 = false,
 }: TransformIndexHtmlHandlerProps) => {
   if (isTransformationStatusEmpty && server) {
     //Return early if there are no transformations and we are in dev mode
@@ -186,9 +188,18 @@ export const transformIndexHtmlHandler = async ({
   });
 
   const InjectedHtmlTags = policyToTag(policyString);
+  
+  if(isVite6){
+    const changedHtml = handleCSPInsert(newHtml, policyString)
+    return {
+      html: changedHtml,
+      tags: []
+    }
+  }
 
   return {
     html: newHtml,
     tags: InjectedHtmlTags,
   };
+
 };

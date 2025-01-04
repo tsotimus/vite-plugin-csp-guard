@@ -80,6 +80,7 @@ export function handleIndexHtml({
     }
   });
 
+
   // TODO: Maybe we don't need this if we are just using 'self' anyway in the policy?
   // $("link").each(function (i, el) {
   //   if (
@@ -139,3 +140,11 @@ export function handleIndexHtml({
   //   }
   return { HASH_COLLECTION, html: $.html() };
 }
+
+// Used for Vite 6 workaround
+export const handleCSPInsert = (html: string, policy: string) => {
+  const $ = cheerio.load(html);
+  const metaTag = `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
+  $("head").prepend(metaTag);
+  return $.html();
+};

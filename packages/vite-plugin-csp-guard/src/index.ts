@@ -153,6 +153,7 @@ export default function vitePluginCSP(
           isTransformationStatusEmpty: isTransformationStatusEmpty(),
           sri,
           shouldSkip,
+          isVite6: true,  //This is set to true constantly because we cannot determine the vite version at runtime accurately.
         });
       },
     },
