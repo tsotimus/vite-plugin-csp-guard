@@ -14,7 +14,7 @@
         "framer-motion": "^11.15.0",
         "next": "^14.0.0",
         "next-sitemap": "^4.2.3",
-        "nextra": "^2.13.3",
+        "nextra": "^4.0.0",
         "nextra-theme-docs": "^2.13.3",
         "react": "^18.0.2",
         "react-dom": "^18.0.2"
