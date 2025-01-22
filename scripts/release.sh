@@ -103,8 +103,9 @@ create_release_branch() {
   VERSION=$(get_new_version)
   BRANCH_NAME="release/${PACKAGE_NAME}_${VERSION}"
   
-  # Create a new branch and push it to remote
   git checkout -b "$BRANCH_NAME"
+  git add "./packages/$PACKAGE_NAME/package.json"
+  git commit -m "chore(release): bump $PACKAGE_NAME to v$VERSION"
   git push origin "$BRANCH_NAME"
   echo "Created new release branch: $BRANCH_NAME"
 }
