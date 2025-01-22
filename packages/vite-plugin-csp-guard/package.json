@@ -7,6 +7,7 @@
   "description": "A Vite plugin that lets SPA applications generate a Content Security Policy (CSP).",
   "scripts": {
     "build": "rollup -c",
+    "trace": "tsc --traceResolution --noEmit",
     "test": "vitest"
   },
   "homepage": "https://vite-csp.tsotne.co.uk",

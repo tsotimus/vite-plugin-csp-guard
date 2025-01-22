@@ -1,20 +1,47 @@
 import { Callout } from "nextra-theme-docs";
 
-# MPA
-This plugin currently does not support Multi Page Applications (MPAs) and this is unlikely to change due to the nature of how MPAs interact with Vite.
+# Multi-Page Applications (MPAs)
 
 <Callout type="info">
-Examples of MPA frameworks include Nuxt.js, Remix, etc.
+Examples of MPA frameworks include Nuxt.js, Remix, and others.
 </Callout>
 
-Since MPAs typically have access to a server, you should use a nonce-based CSP. We recommend checking if your MPA framework has built-in nonce support or solutions tailored to MPAs. If not, you can create a custom solution by following these rules:
+## Current Status
 
-## Rules to Follow
-**On every page request:**
-1. Generate a new [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce).
-2. Add the nonce to the [CSP header or meta](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP).
-3. Add the nonce to the script/style tags.
+### The Bad News
+The **Vite Plugin CSP Guard** currently does not support Multi-Page Applications (MPAs). Unfortunately, this limitation is unlikely to change due to the inherent differences between how MPAs operate in Vite.
 
-<Callout type="info">
-Individual frameworks like Remix and Nuxt may be coming out with their own solutions soon, as [Vite recently added support for nonces.](https://vitejs.dev/guide/features#content-security-policy-csp)
-</Callout>
+### The Good News
+We are actively working on solutions to bring CSP support to MPAs. While the main plugin does not support this today, additional packages are on the way to address these needs.
+
+---
+
+## Our Roadmap
+Here’s what we’re working on to support CSP in MPA environments:
+
+1. **Build a common toolkit** (✅ Done! Check out [CSP Toolkit](https://www.npmjs.com/package/csp-toolkit)).
+2. Develop **framework-specific solutions** tailored for popular MPA frameworks.
+3. Create a lightweight **Vite Server solution** focused solely on attaching nonces.
+
+---
+
+## What You Can Do in the Meantime
+
+MPAs typically have access to a server, making it feasible to implement a **nonce-based CSP**. Here’s how you can set up your CSP for MPAs:
+
+### Steps to Implement a Nonce-Based CSP
+
+1. **Generate a new [nonce](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/nonce)** on every page request.  
+   *Use [CSP Toolkit](https://www.npmjs.com/package/csp-toolkit) to simplify this process.*
+
+2. **Add the nonce to the CSP header or meta tag.**  
+   Refer to the [MDN documentation on CSP](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) for guidance on how to format the policy.
+
+3. **Attach the nonce to your script and style tags.**  
+   This ensures compliance with the CSP policy for inline scripts and styles.
+
+---
+
+## Stay Tuned
+
+We are committed to supporting developers across all frameworks, including MPAs. Progress on our roadmap is ongoing, and you can expect updates soon. For now, implementing a nonce-based CSP is the best practice to secure your MPA.

@@ -10,10 +10,19 @@ We do this so you don't have to worry about the basics. These are merged with yo
 
 ```ts
 "default-src": ["'self'"],
-"img-src": ["'self'", "data:"],
+"img-src": ["'self'"],
 "script-src-elem": ["'self'"],
 "style-src-elem": ["'self'"],
 ```
+
+<Callout type="info">
+   You can override these defaults if you wish via the [override flag](/api-docs#override)
+</Callout>
+
+<Callout type="info">
+   In dev mode `"data:"` is added to `"img-src"` for your convenience 
+</Callout>
+
 
 ## Typical use cases
 
@@ -22,7 +31,7 @@ We do this so you don't have to worry about the basics. These are merged with yo
 Third party code like, Google Analytics, Hotjar, etc. are common in most websites. You can use the `script-src` directive to allow these scripts to run.
 
 <Callout type="warning">
-    When doing this you are essentially trusting third party code to run on your website. Make sure you trust the third party and that they are not compromised.
+    When doing this you are essentially trusting third party code to run on your website. Make sure you trust these third parties as you are explicitly giving them permission to run code on your site
 </Callout>
 
 ```ts

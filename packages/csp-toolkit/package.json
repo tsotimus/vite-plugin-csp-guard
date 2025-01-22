@@ -11,22 +11,28 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/RockiRider/csp",
+        "url": "git+https://github.com/tsotimus/csp",
         "directory": "packages/csp-toolkit"
     },
+    "homepage": "https://vite-csp.tsotne.co.uk",
     "license": "GPL-3.0-only",
-    "main": "dist/index.cjs.js",
-    "module": "dist/index.esm.js",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
-            "require": "./dist/index.cjs.js",
-            "import": "./dist/index.esm.js"
+            "import": "./dist/index.esm.js",
+            "require": "./dist/index.cjs.js" 
+        },
+        "./server": {
+            "types": "./dist/node/node.d.ts",
+            "import": "./dist/node/node.esm.js",
+            "require": "./dist/node/node.cjs.js"
         }
     },
+    "type": "module",
     "types": "dist/index.d.ts",
     "typings": "dist/index.d.ts",
-    "type": "module",
+    "main": "dist/index.cjs.js",
+    "module": "dist/index.esm.js",
     "devDependencies": {
         "@repo/eslint-config": "workspace:^",
         "@repo/typescript-config": "workspace:^",

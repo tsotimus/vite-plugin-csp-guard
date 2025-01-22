@@ -36,3 +36,5 @@ export type CSPKeys = FetchDirectives | DocumentDirectives | NavigationDirective
 export type CSPPolicy = Partial<{
   [n in CSPKeys]: string[];
 }>;
+
+export type HashAlgorithms = "sha256" | "sha384" | "sha512";

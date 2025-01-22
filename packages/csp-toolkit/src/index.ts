@@ -62,4 +62,5 @@ export const policyToString = (policy: CSPPolicy): string => {
     }, "");
 };
 
+
 export * from "./types";
