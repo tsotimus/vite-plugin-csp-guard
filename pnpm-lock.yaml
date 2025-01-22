@@ -868,8 +868,8 @@ importers:
   packages/testing:
     dependencies:
       csp-toolkit:
-        specifier: workspace:^
-        version: link:../csp-toolkit
+        specifier: 1.1.0
+        version: 1.1.0
     devDependencies:
       '@repo/typescript-config':
         specifier: workspace:^

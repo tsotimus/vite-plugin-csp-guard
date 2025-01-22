@@ -7,16 +7,17 @@
   "description": "A Vite plugin that lets SPA applications generate a Content Security Policy (CSP).",
   "scripts": {
     "build": "rollup -c",
+    "trace": "tsc --traceResolution --noEmit",
     "test": "vitest"
   },
   "homepage": "https://vite-csp.tsotne.co.uk",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RockiRider/csp",
+    "url": "git+https://github.com/tsotimus/csp",
     "directory": "packages/vite-plugin-csp-guard"
   },
   "bugs": {
-    "url": "https://github.com/RockiRider/csp/issues"
+    "url": "https://github.com/tsotimus/csp/issues"
   },
   "license": "GPL-3.0-only",
   "main": "dist/index.cjs.js",

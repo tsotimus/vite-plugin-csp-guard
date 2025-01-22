@@ -4,30 +4,59 @@ import typescript from "@rollup/plugin-typescript";
 import { defineConfig } from "rollup";
 import terser from "@rollup/plugin-terser";
 
-export default defineConfig({
-  input: "src/index.ts", // Your plugin's entry point
-  output: [
-    {
-      file: "dist/index.esm.js",
-      format: "esm", // Output as ES Module
-      sourcemap: false,
-    },
-    {
-      file: "dist/index.cjs.js",
-      format: "cjs", // Output as CommonJS
-      sourcemap: false,
-    },
-  ],
-  plugins: [
-    typescript({
-      tsconfig: "tsconfig.json",
-      declaration: true,
-      declarationDir: "dist",
-      include: ["src/**/*.ts"],
-      sourceMap: false,
-    }), // Transpile TypeScript
-    resolve(), // Resolves node modules
-    commonjs(), // Converts commonjs to ES modules
-    terser(), // Minify
-  ],
-});
+export default defineConfig([
+  {
+    input: "src/index.ts", // Default entry point
+    output: [
+      {
+        file: "dist/index.esm.js",
+        format: "esm",
+        sourcemap: false,
+      },
+      {
+        file: "dist/index.cjs.js",
+        format: "cjs",
+        sourcemap: false,
+      },
+    ],
+    plugins: [
+      typescript({
+        tsconfig: "tsconfig.json",
+        declaration: true,
+        declarationDir: "dist/types", // Output declarations for default entry point here
+        include: ["src/index.ts", "src/types.ts"],
+        sourceMap: false,
+      }),
+      resolve(),
+      commonjs(),
+      terser(),
+    ],
+  },
+  {
+    input: "src/node.ts", // Secondary entry point for server
+    output: [
+      {
+        file: "dist/node/node.esm.js",
+        format: "esm",
+        sourcemap: true,
+      },
+      {
+        file: "dist/node/node.cjs.js",
+        format: "cjs",
+        sourcemap: true,
+      },
+    ],
+    plugins: [
+      typescript({
+        tsconfig: "tsconfig.json",
+        declaration: true,
+        declarationDir: "dist/node/types", // Separate declarations for server
+        include: ["src/node.ts", "src/types.ts"], // Include node-specific types
+        sourceMap: false,
+      }),
+      resolve(),
+      commonjs(),
+      terser(),
+    ],
+  },
+]);

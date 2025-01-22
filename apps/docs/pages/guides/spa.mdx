@@ -9,13 +9,19 @@ Examples of SPAs include React, Vue, Svelte, etc.
 </Callout>
 
 
-## What Problem Does This Plugin Solve?
-The issue with SPAs is that they don't have a server to generate a unique `nonce` for each request. This means you can't use [nonce-based CSPs](https://content-security-policy.com/nonce/). This plugin solves this issue by using an alternative [hash-based CSP](https://content-security-policy.com/hash/), which is the only way to secure your SPA without a server.
+## The issue with SPA's
+The issue with SPAs is that they don't have a server to generate a unique `nonce` for each request. This means you can't use [nonce-based CSPs](https://content-security-policy.com/nonce/).
+
+We solve this in a few different ways, mainly via [hashing](https://content-security-policy.com/hash/):
+- We hash any top level inline JS (Additional `<scripts` found in your `index.html`), for both `build` and `dev` mode
+- We hash all your app code for `dev` mode, so your CSP actually works
+- We add default CSP config for `build` mode and allow the option for [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
+
 
 
 ## Installation
 
-<Tabs items={['npm', 'yarn', 'pnpm']} defaultIndex="1">
+<Tabs items={['npm', 'yarn', 'pnpm']} defaultIndex="0">
   <Tabs.Tab>
   ```bash
 npm install -D vite-plugin-csp-guard -
@@ -53,6 +59,9 @@ export default defineConfig({
       policy: {
         "script-src": ["'self'", "https://www.google-analytics.com"],    //Allow google analytics to run
         "font-src": ["'self'", "https://fonts.gstatic.com"],    //Allows fonts from Google to load
+      },
+      build:{
+        sri: true
       }
     }),
   ],
