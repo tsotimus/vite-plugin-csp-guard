@@ -55,7 +55,7 @@ jobs:
           package_path=$(./scripts/get-package-path.sh ${{ matrix.package }})
           echo "PACKAGE_PATH=$package_path" >> $GITHUB_OUTPUT
 
-      - name: Build package
+      - name: Build all packages
         run: pnpm p:build # Builds all packages
 
       - name: Archive production artifacts
