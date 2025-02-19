@@ -5,6 +5,8 @@
     "build": "turbo build --filter=!docs --filter=!remix-spa --filter=!remix-app",
     "p:build": "turbo build --filter=vite-plugin-csp-guard --filter=csp-toolkit",
     "p:test": "turbo test --filter=vite-plugin-csp-guard --filter=csp-toolkit",
+    "csp:test": "turbo test --filter=vite-plugin-csp-guard",
+    "tk:test": "turbo test --filter=csp-toolkit",
     "dev": "turbo dev",
     "preview": "turbo preview",
     "r:dev": "turbo dev --filter=react-app",

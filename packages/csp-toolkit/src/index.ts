@@ -59,7 +59,7 @@ export const policyToString = (policy: CSPPolicy): string => {
         })
         .join(" ");
         return `${acc} ${key} ${policyValueStr};`;
-    }, "");
+    }, "").trimStart();
 };
 
 
