@@ -892,8 +892,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       csp-toolkit:
-        specifier: ^1.1.0
-        version: 1.1.0
+        specifier: ^1.2.1
+        version: 1.2.1
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:^
@@ -3470,6 +3470,9 @@ packages:
 
   csp-toolkit@1.1.0:
     resolution: {integrity: sha512-ZjOP40TSoYTZazXYTM3hZ3NzOqfAGByoQBB+DGIm24dnsvF347ZrFrZCp9c9d6Hcez0hGad2sv/mjX7zJMNzCA==}
+
+  csp-toolkit@1.2.1:
+    resolution: {integrity: sha512-uyLYSkr4XBBQAiA/pihwEI+yc2bpXh6eQwWhcXzBUN8zRFVLXGHewQoU2uNW4O+Ff54g71KXWzPsyRxv98agbw==}
 
   css-select@5.1.0:
     resolution: {integrity: sha512-nwoRF1rvRRnnCqqY7updORDsuqKzqYJ28+oSMaJMMgOauh3fvwHqMS7EZpIPqK8GL+g9mKxF1vP/ZjSeNjEVHg==}
@@ -9812,6 +9815,8 @@ snapshots:
       which: 2.0.2
 
   csp-toolkit@1.1.0: {}
+
+  csp-toolkit@1.2.1: {}
 
   css-select@5.1.0:
     dependencies:
