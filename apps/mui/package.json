@@ -15,11 +15,11 @@
     "@mui/icons-material": "next",
     "@mui/material": "next",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
-    "@types/react-dom": "^18.2.22",
+    "@types/react-dom": "^19.0.2",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
