@@ -18,19 +18,19 @@
     "license": "GPL-3.0-only",
     "exports": {
         ".": {
-            "types": "./dist/index.d.ts",
+            "types": "./dist/types/index.d.ts",
             "import": "./dist/index.esm.js",
             "require": "./dist/index.cjs.js"
         },
         "./server": {
-            "types": "./dist/node/node.d.ts",
+            "types": "./dist/node/types/node.d.ts",
             "import": "./dist/node/node.esm.js",
             "require": "./dist/node/node.cjs.js"
         }
     },
     "type": "module",
-    "types": "dist/index.d.ts",
-    "typings": "dist/index.d.ts",
+    "types": "dist/types/index.d.ts",
+    "typings": "dist/types/index.d.ts",
     "main": "dist/index.cjs.js",
     "module": "dist/index.esm.js",
     "devDependencies": {
