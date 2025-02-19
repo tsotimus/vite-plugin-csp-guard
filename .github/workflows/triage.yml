@@ -15,8 +15,11 @@ jobs:
         uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "23"
+      - run: node -v
       - run: corepack enable
+      - run: corepack --version
+      
       - run: pnpm install
       - name: Build Vite-Plugin-CSP-Guard
         run: pnpm p:build
