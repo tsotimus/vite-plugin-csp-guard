@@ -11,12 +11,12 @@ export default defineConfig([
       {
         file: "dist/index.esm.js",
         format: "esm",
-        sourcemap: false,
+        sourcemap: true,
       },
       {
         file: "dist/index.cjs.js",
         format: "cjs",
-        sourcemap: false,
+        sourcemap: true,
       },
     ],
     plugins: [
@@ -25,7 +25,7 @@ export default defineConfig([
         declaration: true,
         declarationDir: "dist/types", // Output declarations for default entry point here
         include: ["src/index.ts", "src/types.ts"],
-        sourceMap: false,
+        sourceMap: true,
       }),
       resolve(),
       commonjs(),
@@ -52,7 +52,7 @@ export default defineConfig([
         declaration: true,
         declarationDir: "dist/node/types", // Separate declarations for server
         include: ["src/node.ts", "src/types.ts"], // Include node-specific types
-        sourceMap: false,
+        sourceMap: true,
       }),
       resolve(),
       commonjs(),
