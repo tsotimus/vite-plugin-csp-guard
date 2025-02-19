@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build --filter=!docs --filter=!remix-spa --filter=!remix-app",
-    "p:build": "turbo build --filter=vite-plugin-csp-guard",
+    "p:build": "turbo build --filter=vite-plugin-csp-guard --filter=csp-toolkit",
     "p:test": "turbo test --filter=vite-plugin-csp-guard --filter=csp-toolkit",
     "csp:build": "turbo --filter=vite-plugin-csp-guard",
     "csp:test": "turbo test --filter=vite-plugin-csp-guard",
