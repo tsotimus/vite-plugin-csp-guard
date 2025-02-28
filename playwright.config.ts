@@ -261,7 +261,7 @@ const APPS = [
     ],
   },
   {
-    url: "http://localhost:3013",
+    url: "http://localhost:3014",
     command: `pnpm tailwind4:dev`,
     testDir: "./apps/tailwind4/tests",
     name: "Tailwind4 - Dev",
@@ -270,7 +270,7 @@ const APPS = [
     ],
   },
   {
-    url: "http://localhost:4013",
+    url: "http://localhost:4014",
     command: `pnpm tailwind4:preview`,
     testDir: "./apps/tailwind4/tests",
     name: "Tailwind4 - Build",
