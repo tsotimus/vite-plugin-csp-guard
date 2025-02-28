@@ -5,7 +5,7 @@ function App() {
 
   return (
     <div className="flex flex-col justify-center items-center h-screen">
-      <h1 className="text-3xl font-bold underline">Vite + Tailwind</h1>
+      <h1 className="text-3xl font-bold underline">Vite + Tailwind 4</h1>
       <div className="card bg-gray-100 p-4 shadow-lg flex flex-col m-10">
         <button
           onClick={() => setCount((count) => count + 1)}
