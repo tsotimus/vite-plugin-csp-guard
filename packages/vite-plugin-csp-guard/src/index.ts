@@ -1,4 +1,4 @@
-import { Plugin, ViteDevServer } from "vite";
+import { Plugin, ViteDevServer, version } from "vite";
 import { PluginContext } from "rollup";
 import { MyPluginOptions, TransformationStatus } from "./types";
 import { DEFAULT_DEV_POLICY, DEFAULT_POLICY } from "./policy/constants";
@@ -10,6 +10,7 @@ import {
 import { transformHandler, transformIndexHtmlHandler } from "./transform";
 import {
   cssFilter,
+  getViteMajorVersion,
   jsFilter,
   parseOutliers,
   preCssFilter,
@@ -56,6 +57,8 @@ export default function vitePluginCSP(
 
   const requirements = parseOutliers(outlierSupport);
   const shouldSkip = calculateSkip(policy);
+
+  const viteVersion = getViteMajorVersion(version);
 
   return {
     name: "vite-plugin-csp-guard",
@@ -153,7 +156,7 @@ export default function vitePluginCSP(
           isTransformationStatusEmpty: isTransformationStatusEmpty(),
           sri,
           shouldSkip,
-          isVite6: true,  //This is set to true constantly because we cannot determine the vite version at runtime accurately.
+          isVite6: viteVersion === "6",
         });
       },
     },
