@@ -260,6 +260,24 @@ const APPS = [
       /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
     ],
   },
+  {
+    url: "http://localhost:3014",
+    command: `pnpm tailwind4:dev`,
+    testDir: "./apps/tailwind4/tests",
+    name: "Tailwind4 - Dev",
+    testMatch: [
+      /^(?!.*\/preview-only\/).*\.spec\.ts$/, // Exclude any file inside the preview-only folder
+    ],
+  },
+  {
+    url: "http://localhost:4014",
+    command: `pnpm tailwind4:preview`,
+    testDir: "./apps/tailwind4/tests",
+    name: "Tailwind4 - Build",
+    testMatch: [
+      /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
+    ],
+  },
 ];
 
 /**
