@@ -13,7 +13,7 @@ export default defineConfig({
       },
       ssr: false,
     }),
-    tsconfigPaths(),
+    tsconfigPaths() as PluginOption,
     csp({
       dev: {
         run: true,

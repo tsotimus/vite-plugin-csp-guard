@@ -116,7 +116,7 @@ export default function vitePluginCSP(
       order: requirements.postTransform ? "post" : "pre",
       handler: async (code, id) => {
         if (features.mpa) {
-          console.log(id);
+          // console.log(id);
         }
 
         if (!isDevAndAllowed()) return null; // Exit early if we are not in dev mode or if we are in dev mode but the user does not want to run in dev mode
@@ -137,7 +137,7 @@ export default function vitePluginCSP(
       order: "post",
       handler: async (html, context) => {
         if (features.mpa) {
-          console.log("transformIndexHtml");
+          // console.log("transformIndexHtml");
         }
 
         const defaultPolicy = isDevAndAllowed()
