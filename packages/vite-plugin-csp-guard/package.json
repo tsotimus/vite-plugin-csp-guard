@@ -13,11 +13,11 @@
   "homepage": "https://vite-csp.tsotne.co.uk",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tsotimus/csp",
+    "url": "git+https://github.com/tsotimus/vite-plugin-csp-guard",
     "directory": "packages/vite-plugin-csp-guard"
   },
   "bugs": {
-    "url": "https://github.com/tsotimus/csp/issues"
+    "url": "https://github.com/tsotimus/vite-plugin-csp-guard/issues"
   },
   "license": "GPL-3.0-only",
   "main": "dist/index.cjs.js",
