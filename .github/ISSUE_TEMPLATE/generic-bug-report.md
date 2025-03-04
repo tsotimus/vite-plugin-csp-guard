@@ -3,7 +3,7 @@ name: Generic Bug Report
 about: A non framework/library specific bug report
 title: "[BUG]"
 labels: bug
-assignees: RockiRider
+assignees: tsotimus
 
 ---
 

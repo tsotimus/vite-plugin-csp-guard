@@ -3,7 +3,7 @@ name: React Bug Report
 about: React specific bug report
 title: "[BUG]"
 labels: bug, react
-assignees: RockiRider
+assignees: tsotimus
 
 ---
 
