@@ -188,7 +188,7 @@ export const transformIndexHtmlHandler = async ({
   });
 
   const InjectedHtmlTags = policyToTag(policyString);
-  
+
   if(isVite6){
     const changedHtml = handleCSPInsert(newHtml, policyString)
     return {

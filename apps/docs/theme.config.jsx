@@ -1,9 +1,9 @@
 export default {
   logo: <span style={{ fontWeight: 600 }}>Vite CSP Guard</span>,
   project: {
-    link: "https://github.com/RockiRider/csp",
+    link: "https://github.com/tsotimus/vite-plugin-csp-guard",
   },
-  docsRepositoryBase: "https://github.com/RockiRider/csp/tree/main/apps/docs",
+  docsRepositoryBase: "https://github.com/tsotimus/vite-plugin-csp-guard/tree/main/apps/docs",
   useNextSeoProps() {
     return {
       titleTemplate: "%s | Vite CSP Guard",

@@ -21,10 +21,13 @@ jobs:
       - run: corepack --version
       
       - run: pnpm install
+      
       - name: Build All Publishable Packages
         run: pnpm p:build
+
       - name: Run Unit Tests
         run: pnpm p:test
+
       - name: Build Apps
         run: pnpm build
         

@@ -26,6 +26,5 @@ export default {
     'react',
     'vite',
     "@playwright/test",
-    "csp-toolkit"
   ],
 };

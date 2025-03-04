@@ -1,15 +1,22 @@
-# Repo for all things CSP related
+# Vite Plugin CSP Guard
+
+<!-- BEGIN BADGES -->
+[![npm version](https://img.shields.io/npm/v/vite-plugin-csp-guard)](https://www.npmjs.com/package/vite-plugin-csp-guard)
+[![npm downloads](https://img.shields.io/npm/dt/vite-plugin-csp-guard)](https://www.npmjs.com/package/vite-plugin-csp-guard)
+[![npm weekly downloads](https://img.shields.io/npm/dw/vite-plugin-csp-guard)](https://www.npmjs.com/package/vite-plugin-csp-guard)
+[![License](https://img.shields.io/npm/l/vite-plugin-csp-guard)](https://github.com/tsotimus/vite-plugin-csp-guard/blob/main/LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/tsotimus/vite-plugin-csp-guard?style=social)](https://github.com/tsotimus/vite-plugin-csp-guard)
+<!-- END BADGES -->
+
+This is a monorepo for the Vite Plugin CSP Guard.
 
 ## What's inside?
 
-This is a turborepo monorepo using pnpm.
-
 All the apps under `/apps` are used to test the plugin.
 
-All the packages under `/packages` include the packages im building, as well as some others.
+All the packages under `/packages` include the packages im building, as well as some utilities.
 
 - [Vite Plugin CSP Guard](https://npmjs.com/package/vite-plugin-csp-guard)
-- [CSP Toolkit](https://npmjs.com/package/csp-toolkit)
 
 ## Documentation you might be looking for
 

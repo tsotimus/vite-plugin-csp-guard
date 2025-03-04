@@ -2,33 +2,12 @@
 
 # Dry-run flag (set to true for testing)
 DRY_RUN=false
-
-select_package() {
-  echo "Select a package to release:"
-  options=("vite-plugin-csp-guard" "csp-toolkit" "Quit")
-  PS3="Enter the number of your choice: "  # Prompt for the selection
-  select package in "${options[@]}"; do
-    case $package in
-      "vite-plugin-csp-guard"|"csp-toolkit")
-        echo "Selected package: $package"
-        PACKAGE_NAME=$package
-        break
-        ;;
-      "Quit")
-        echo "Exiting."
-        exit 0
-        ;;
-      *)
-        echo "Invalid option. Please try again."
-        ;;
-    esac
-  done
-}
+PACKAGE_NAME="vite-plugin-csp-guard"
 
 select_version() {
   echo "Select version type:"
   options=("major" "minor" "patch" "beta" "alpha" "Quit")
-  PS3="Enter the number of your choice: "  # Prompt for the selection
+  PS3="Enter the number of your choice: "
   select version in "${options[@]}"; do
     case $version in
       "major"|"minor"|"patch"|"beta"|"alpha")
@@ -75,28 +54,22 @@ update_version() {
     exit 1
   fi
 
-  # Handle pre-release versions
+  cd "./packages/$PACKAGE_NAME" || exit
   if [[ "$SEMVER" == "beta" || "$SEMVER" == "alpha" ]]; then
-    cd "./packages/$PACKAGE_NAME" || exit
     pnpm version prerelease --preid="$SEMVER"
-    cd - || exit
   else
-    cd "./packages/$PACKAGE_NAME" || exit
     pnpm version $SEMVER
-    cd - || exit
   fi
+  cd - || exit
 }
 
 get_new_version() {
   PACKAGE_JSON="./packages/$PACKAGE_NAME/package.json"
-
   if ! [ -f "$PACKAGE_JSON" ]; then
     echo "Error: $PACKAGE_JSON doesn't exist."
     exit 1
   fi
-
-  local VERSION=$(node -pe "require('$PACKAGE_JSON').version")
-  echo "$VERSION"
+  node -pe "require('$PACKAGE_JSON').version"
 }
 
 create_release_branch() {
@@ -113,13 +86,11 @@ create_release_branch() {
 publish_package() {
   if [[ "$DRY_RUN" == false ]]; then
     if [[ "$SEMVER" == "beta" || "$SEMVER" == "alpha" ]]; then
-      # For pre-releases (beta/alpha), publish the package
       cd "./packages/$PACKAGE_NAME" || exit
       pnpm publish --access public
       cd - || exit
       echo "Package published."
     else
-      # For stable versions, create a release branch and push it
       create_release_branch
     fi
   else
@@ -128,15 +99,11 @@ publish_package() {
 }
 
 run_deploy() {
-  check_branch  # Skip this check if DRY_RUN is true
+  check_branch
   update_version
   publish_package
 }
 
-main() {
-  select_package
-  select_version
-  run_deploy
-}
-
-main
+# Main execution
+select_version
+run_deploy
