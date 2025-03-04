@@ -20,7 +20,7 @@ export default defineConfig(
           sourcemap: true,
         },
       ],
-      external: ["lightningcss", "fsevents", "vite", "cheerio", "csp-toolkit"],
+      external: ["lightningcss", "fsevents", "vite", "cheerio"],
       plugins: [
         typescript({
           tsconfig: "tsconfig.json",
@@ -34,35 +34,6 @@ export default defineConfig(
         commonjs(),
         terser(),
       ],
-    },
-    {
-      input: "src/server/index.ts", // Use the server-specific entry point
-      output: [
-        {
-          file: "dist/server/index.esm.js",
-          format: "esm",
-          sourcemap: true,
-        },
-        {
-          file: "dist/server/index.cjs.js",
-          format: "cjs",
-          sourcemap: true,
-        },
-      ],
-      external: ["lightningcss", "fsevents", "vite", "csp-toolkit", "csp-toolkit/server"],
-      plugins: [
-        typescript({
-          tsconfig: "tsconfig.json",
-          declaration: true,
-          declarationDir: "dist/server/types",
-          outDir: "dist/server",
-          include: ["src/server/**/*.ts"],
-          sourceMap: true,
-        }),
-        resolve(),
-        commonjs(),
-        terser(),
-      ],
-    },
+    }
   ]
 );
