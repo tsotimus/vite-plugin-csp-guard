@@ -2,7 +2,7 @@
   "name": "vite-csp",
   "private": true,
   "scripts": {
-    "build": "turbo build --filter=!docs --filter=!remix-spa --filter=!remix-app",
+    "build": "turbo build --filter=!docs",
     "p:build": "turbo build --filter=vite-plugin-csp-guard",
     "p:test": "turbo test --filter=vite-plugin-csp-guard",
     "dev": "turbo dev",
