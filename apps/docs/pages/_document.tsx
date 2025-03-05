@@ -5,7 +5,7 @@ export default function MyDocument() {
     <Html lang="en">
       <Head>
         {/* PWA primary color */}
-        <link rel="shortcut icon" href="/vite_logo.svg" />
+        <link rel="shortcut icon" href="/logo.png" />
         <meta name="emotion-insertion-point" content="" />
       </Head>
       <body>
