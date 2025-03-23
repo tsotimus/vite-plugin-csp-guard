@@ -2,6 +2,9 @@
   "name": "vite-csp",
   "private": true,
   "scripts": {
+    "vue-router:dev": "turbo dev --filter=vue-router",
+    "vue-router:build": "turbo build --filter=vue-router",
+    "vue-router:preview": "turbo preview --filter=vue-router",
     "build": "turbo build --filter=!docs",
     "p:build": "turbo build --filter=vite-plugin-csp-guard",
     "p:test": "turbo test --filter=vite-plugin-csp-guard",
