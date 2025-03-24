@@ -19,7 +19,15 @@ module.exports = {
       priority: 0.9,
     },
     {
+      loc: "/guides/policy",
+      priority: 0.9,
+    },
+    {
       loc: "/api-docs",
+      priority: 0.6,
+    },
+    {
+      loc: "/migrations/v2",
       priority: 0.6,
     },
   ],
