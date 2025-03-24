@@ -13,17 +13,6 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
   // Keep track of component names to match JS with CSS
   const componentMap: Record<string, { js?: string; css: string[] }> = {};
 
-  // Debug log the bundle structure to understand what we're working with
-  console.log(`Bundle contains ${Object.keys(bundle).length} files:`);
-  for (const key of Object.keys(bundle)) {
-    const item = bundle[key];
-    if (item) {
-      console.log(
-        `- ${key}: ${item.type}, fileName: ${(item as any).fileName || "N/A"}`
-      );
-    }
-  }
-
   // First pass: collect all components and their assets
   for (const fileName of Object.keys(bundle)) {
     const chunk = bundle[fileName];
@@ -61,9 +50,6 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
           for (const cssFile of cssFiles) {
             if (cssFile && !cssFile.includes("index")) {
               const cssAssetPath = `"assets/${cssFile.split("/").pop()}"`;
-              console.log(
-                `Found CSS via viteMetadata for ${componentName}: ${cssAssetPath}`
-              );
               componentMap[componentName].css.push(cssAssetPath);
             }
           }
@@ -90,21 +76,10 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
 
       if (fileName.includes(componentName)) {
         const cssPath = `"assets/${fileName.split("/").pop()}"`;
-        console.log(`Found CSS file for ${componentName}: ${cssPath}`);
-
         if (!component.css.includes(cssPath)) {
           component.css.push(cssPath);
         }
       }
-    }
-  }
-
-  console.log("Component map before building asset list:");
-  for (const [componentName, assets] of Object.entries(componentMap)) {
-    if (assets) {
-      console.log(
-        `- ${componentName}: JS=${assets.js || "none"}, CSS=[${assets.css.join(", ")}]`
-      );
     }
   }
 
@@ -129,8 +104,6 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
       }
     }
   }
-
-  console.log("Final paired assets:", pairedAssets);
 
   // If we have no assets, use a placeholder
   if (pairedAssets.length === 0) {

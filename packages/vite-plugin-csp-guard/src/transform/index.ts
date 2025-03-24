@@ -1,12 +1,6 @@
 import { IndexHtmlTransformContext, ViteDevServer } from "vite";
 import { addHash, generateHash } from "../policy/core";
-import {
-  BundleContext,
-  HashAlgorithms,
-  HashCollection,
-  ShouldSkip,
-  TransformationStatus,
-} from "../types";
+import { BundleContext, TransformationStatus } from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
 import { PluginContext } from "rollup";
 import { generatePolicyString, policyToTag } from "../policy/createPolicy";

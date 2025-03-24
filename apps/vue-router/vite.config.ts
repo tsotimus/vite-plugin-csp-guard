@@ -9,6 +9,7 @@ export default defineConfig({
     csp({
       build: {
         sri: true,
+        outlierSupport: ["vue-router"],
       },
       debug: true,
     }) as PluginOption,
