@@ -72,6 +72,10 @@ export type MyPluginOptions = {
    * Options that apply only when running `vite build`.
    */
   build?: BuildOptions;
+  /**
+   * Debug is meant for plugin developers only
+   */
+  debug?: boolean;
 };
 
 export type HashCache = {

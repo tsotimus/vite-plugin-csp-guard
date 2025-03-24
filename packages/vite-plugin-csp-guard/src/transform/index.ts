@@ -126,6 +126,7 @@ export interface TransformIndexHtmlHandlerProps {
   isTransformationStatusEmpty: boolean;
   sri: boolean;
   shouldSkip: ShouldSkip;
+  debug: boolean;
   isVite6?: boolean;
 }
 
@@ -140,6 +141,7 @@ export const transformIndexHtmlHandler = async ({
   sri,
   shouldSkip,
   isVite6 = false,
+  debug,
 }: TransformIndexHtmlHandlerProps) => {
   if (isTransformationStatusEmpty && server) {
     //Return early if there are no transformations and we are in dev mode
@@ -149,39 +151,6 @@ export const transformIndexHtmlHandler = async ({
   const bundleContext = {} as BundleContext;
 
   if (bundle && sri) {
-    console.log(`Bundle contains ${Object.keys(bundle).length} files:`);
-
-    // Log overall bundle structure for debugging
-    for (const fileName of Object.keys(bundle)) {
-      const fileInfo = bundle[fileName];
-      if (!fileInfo) continue;
-
-      // Safe access to properties
-      const fileType = fileInfo.type || "unknown";
-      const codeSize = "code" in fileInfo ? fileInfo.code?.length || 0 : "N/A";
-
-      console.log(`- ${fileName}: ${fileType}, size: ${codeSize}`);
-
-      // Log chunk imports if available
-      if (
-        fileType === "chunk" &&
-        "imports" in fileInfo &&
-        Array.isArray(fileInfo.imports)
-      ) {
-        console.log(`  • Imports: ${fileInfo.imports.join(", ")}`);
-      }
-
-      // Log CSS dependencies if available
-      if (
-        "viteMetadata" in fileInfo &&
-        fileInfo.viteMetadata &&
-        "importedCss" in fileInfo.viteMetadata &&
-        Array.isArray(fileInfo.viteMetadata.importedCss)
-      ) {
-        console.log(`  • CSS: ${fileInfo.viteMetadata.importedCss.join(", ")}`);
-      }
-    }
-
     for (const fileName of Object.keys(bundle)) {
       const currentFile = bundle[fileName];
 
@@ -189,24 +158,25 @@ export const transformIndexHtmlHandler = async ({
         if (currentFile.type === "chunk" && !shouldSkip["script-src-elem"]) {
           let code = currentFile.code;
 
-          console.log(`Processing chunk: ${fileName}`);
           if (code.includes("__VITE_PRELOAD__")) {
-            console.log(`Found __VITE_PRELOAD__ in ${fileName}`);
-
             // Write original code to debug file
-            writeDebugFile(
-              code,
-              `temp-original-${fileName.replace(/\//g, "-")}.js`
-            );
+            if (debug) {
+              writeDebugFile(
+                code,
+                `temp-original-${fileName.replace(/\//g, "-")}.js`
+              );
+            }
 
             // Apply transformation and pass bundle information for dependency map generation
             code = replaceVueRouterPreload(code, bundle);
 
-            // Write transformed code to debug file
-            writeDebugFile(
-              code,
-              `temp-transformed-${fileName.replace(/\//g, "-")}.js`
-            );
+            if (debug) {
+              // Write transformed code to debug file
+              writeDebugFile(
+                code,
+                `temp-transformed-${fileName.replace(/\//g, "-")}.js`
+              );
+            }
           }
           const hash = generateHash(code, algorithm);
           if (!collection["script-src-elem"].has(hash)) {

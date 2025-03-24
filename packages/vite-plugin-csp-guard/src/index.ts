@@ -30,6 +30,7 @@ export default function vitePluginCSP(
     features = FEATURE_FLAGS,
     build = {},
     override = false,
+    debug = false,
   } = options;
   let pluginContext: PluginContext | undefined = undefined; //Needed for logging
   let isDevMode = false; // This is a flag to check if we are in dev mode
@@ -157,6 +158,7 @@ export default function vitePluginCSP(
           sri,
           shouldSkip,
           isVite6: viteVersion === "6",
+          debug,
         });
       },
     },
