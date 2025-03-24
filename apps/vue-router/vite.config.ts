@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [
     vue(),
     csp({
+      policy: {
+        "img-src": ["'self'", "data:"],
+      },
       build: {
         sri: true,
         outlierSupport: ["vue-router"],
@@ -14,4 +17,10 @@ export default defineConfig({
       debug: true,
     }) as PluginOption,
   ],
+  preview: {
+    port: 4020,
+  },
+  server: {
+    port: 3020,
+  },
 });

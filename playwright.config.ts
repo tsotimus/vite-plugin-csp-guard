@@ -247,7 +247,7 @@ const APPS = [
     command: `pnpm v6:dev`,
     testDir: "./apps/vite6/tests",
     name: "Vite6 - Dev",
-   testMatch: [
+    testMatch: [
       /^(?!.*\/preview-only\/).*\.spec\.ts$/, // Exclude any file inside the preview-only folder
     ],
   },
@@ -278,6 +278,24 @@ const APPS = [
       /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
     ],
   },
+  {
+    url: "http://localhost:3020",
+    command: `pnpm vue-router:dev`,
+    testDir: "./apps/vue-router/tests",
+    name: "Vue Router - Dev",
+    testMatch: [
+      /^(?!.*\/preview-only\/).*\.spec\.ts$/, // Exclude any file inside the preview-only folder
+    ],
+  },
+  {
+    url: "http://localhost:4020",
+    command: `pnpm vue-router:preview`,
+    testDir: "./apps/vue-router/tests",
+    name: "Vue Router - Build",
+    testMatch: [
+      /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
+    ],
+  },
 ];
 
 /**
@@ -303,7 +321,7 @@ export default defineConfig({
   },
   testMatch: ".*(test|spec).(ts)",
   build: {
-    external: ['**/*index.js'],
+    external: ["**/*index.js"],
   },
 
   /* Configure projects for major browsers */
