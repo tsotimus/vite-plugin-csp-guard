@@ -1,11 +1,12 @@
 import { Callout, Tabs, Tab } from "nextra-theme-docs";
 
 # API
+
 This is the API documentation for this plugin. Here you will find all the options and their descriptions.
 
 ## Example
-```ts
 
+```ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import csp from "vite-plugin-csp-guard";
@@ -30,12 +31,12 @@ export default defineConfig({
     }),
   ],
 });
-
 ```
 
 ## Options
 
 ### algorithm
+
 - Type: `string`
 - Default: `sha256`
 - Description: The algorithm to use for hashing the content.
@@ -44,8 +45,8 @@ export default defineConfig({
   - `sha384`
   - `sha512`
 
-
 ### dev
+
 - Type: `object`
 - Default: `{run: false, outlierSupport: []}`
 - Description: The options for the dev server.
@@ -64,7 +65,7 @@ export default defineConfig({
     </Callout>
 
     <Callout type="warning">
-      Enabling `run` could have performance implicantions in development mode.
+      Enabling `run` could have performance implications in development mode.
     </Callout>
 
   </Tabs.Tab>
@@ -72,7 +73,7 @@ export default defineConfig({
     ### `outlierSupport`
     - **Type:** `Array<string>`
     - **Default:** `[]`
-    - **Description:** Specifies a list of sources that should be treated as exceptions in the CSP policy. This is useful for allowing specific external scripts or styles that do not conform to the general CSP policy defined in the `policy` option.
+    - **Description:** A list of technologies that this plugin needs to be aware of to handle logic differently in order for this plugin to function how you would expect during dev mode.
     - **Options**:
       - `sass`
       - `scss`
@@ -84,18 +85,26 @@ export default defineConfig({
     <Callout type="info">
         If you are using any css pre-processors that are not supported, you can try adding `sass` to the array of `outlierSupport` to see if it works. Either way, please open an issue on the repo so we can add support for it.
     </Callout>
+
+    <Callout type="warning">
+      These outliers are for dev mode only. Check out [Build Modes](#build) outliers too!
+    </Callout>
+
   </Tabs.Tab>
 </Tabs>
 
 ### policy
+
 - Type: `object`
 - Default: `{}`
 - Description: The CSP policy to use. This is an object where the key is the CSP directive and the value is an array of strings that are allowed.
 
 #### policy properties
+
 The key is the CSP directive and the value is an array of strings that are allowed.
 All [official CSP directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy#directives) should be supported. If you find one that is not, please open an issue on the repo.
 You can read our guide for creating a policy [here](/guides/policy)
+
 ```ts
 {
     "script-src": ["'self'", "https://www.google-analytics.com"],
@@ -109,23 +118,33 @@ You can read our guide for creating a policy [here](/guides/policy)
 ```
 
 ### build
+
 - Type: `object`
-- Default: `{sri: false}`
+- Default: `{sri: false, outlierSupport: []}`
 - Description: Options that apply only when running `vite build`.
 
-<Tabs items={['sri']} defaultIndex="0">
+<Tabs items={["sri", "outlierSupport"]} defaultIndex="0">
   <Tabs.Tab>
-    ### `sri`
-    - **Type:** `boolean`
-    - **Default:** `false`
-    - **Description:** Determines if the plugin should hash the JS code during the build process.
+    ### `sri` - **Type:** `boolean` - **Default:** `false` - **Description:**
+    Determines if the plugin should hash the JS code during the build process.
     <Callout type="info">
-      Read more about [SRI here](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
-     </Callout>
+      Read more about [SRI
+      here](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity)
+    </Callout>
+  </Tabs.Tab>
+  <Tabs.Tab>
+    ### `outlierSupport`
+    - **Type:** `Array<string>`
+    - **Default:** `[]`
+    - **Description:** A list of technologies that this plugin needs to be aware of to handle logic differently during the build process.
+    - **Options**:
+      - `vue-router`
+
   </Tabs.Tab>
 </Tabs>
 
 ### override
+
 - Type: `boolean`
 - Default: `false`
 - Description: This is a flag to override the default policy. When set to false, the plugin will merge the default policy (provided by the plugin) with your policy. When set to true, the plugin will **only** use your policy only.

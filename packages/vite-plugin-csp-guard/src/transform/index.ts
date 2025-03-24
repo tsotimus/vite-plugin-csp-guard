@@ -1,25 +1,30 @@
 import { IndexHtmlTransformContext, ViteDevServer } from "vite";
 import { addHash, generateHash } from "../policy/core";
-import {
-  BundleContext,
-  HashAlgorithms,
-  HashCollection,
-  ShouldSkip,
-  TransformationStatus,
-} from "../types";
+import { BundleContext, TransformationStatus } from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
 import { PluginContext } from "rollup";
 import { generatePolicyString, policyToTag } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
 import { getCSS } from "../css/extraction";
-import { CSPPolicy } from "csp-toolkit";
-import { replaceVitePreload } from "./lazy";
+import { replaceVitePreload, replaceVueRouterPreload } from "./lazy";
+import * as fs from "fs";
+import * as path from "path";
+import { CSPPluginContext } from "../types";
+
+// Debug function to write code to a file
+const writeDebugFile = (code: string, fileName: string) => {
+  try {
+    fs.writeFileSync(path.resolve(process.cwd(), fileName), code);
+    console.log(`Debug file written: ${fileName}`);
+  } catch (error) {
+    console.error("Error writing debug file:", error);
+  }
+};
 
 export interface TransformHandlerProps {
   code: string;
   id: string;
-  algorithm: HashAlgorithms;
-  CORE_COLLECTION: HashCollection;
+  cspContext: CSPPluginContext;
   transformationStatus: TransformationStatus;
   transformMode: "pre" | "post"; // Lets us know if we are in the pre or post transform
   server?: ViteDevServer; // This is the ViteDevServer, if this exists it means we are in dev mode
@@ -28,12 +33,13 @@ export interface TransformHandlerProps {
 export const transformHandler = async ({
   code,
   id,
-  algorithm,
-  CORE_COLLECTION,
+  cspContext,
   transformationStatus,
   transformMode,
   server,
 }: TransformHandlerProps) => {
+  const { algorithm, collection } = cspContext;
+
   if (!server) return null; // Exit early if we are not in dev mode
   const isCss = cssFilter(id);
   const isPreCss = preCssFilter(id);
@@ -55,7 +61,7 @@ export const transformHandler = async ({
         algorithm,
         content: code,
       },
-      collection: CORE_COLLECTION,
+      collection: collection,
     });
     transformationStatus.set(id, true);
   };
@@ -69,7 +75,7 @@ export const transformHandler = async ({
         algorithm,
         content: code,
       },
-      collection: CORE_COLLECTION,
+      collection: collection,
     });
     transformationStatus.set(id, true);
   };
@@ -107,28 +113,30 @@ export const transformHandler = async ({
 export interface TransformIndexHtmlHandlerProps {
   html: string;
   context: IndexHtmlTransformContext;
-  algorithm: HashAlgorithms;
-  collection: HashCollection;
-  policy: CSPPolicy;
   pluginContext: PluginContext | undefined;
   isTransformationStatusEmpty: boolean;
+  cspContext: CSPPluginContext;
   sri: boolean;
-  shouldSkip: ShouldSkip;
-  isVite6?: boolean;
 }
 
-export const transformIndexHtmlHandler = async ({
+export const transformIndexHtmlHandler = ({
   html,
   context: { server, bundle, chunk, path, filename },
-  algorithm,
-  policy,
-  collection,
   pluginContext,
   isTransformationStatusEmpty,
+  cspContext,
   sri,
-  shouldSkip,
-  isVite6 = false,
 }: TransformIndexHtmlHandlerProps) => {
+  const {
+    algorithm,
+    policy,
+    collection,
+    shouldSkip,
+    isVite6,
+    debug,
+    requirements,
+  } = cspContext;
+
   if (isTransformationStatusEmpty && server) {
     //Return early if there are no transformations and we are in dev mode
     return;
@@ -143,10 +151,28 @@ export const transformIndexHtmlHandler = async ({
       if (currentFile) {
         if (currentFile.type === "chunk" && !shouldSkip["script-src-elem"]) {
           let code = currentFile.code;
-          
-          if(code.includes("__VITE_PRELOAD__")) {
-            // If we have lazy loading, we need to replace the __VITE_PRELOAD__ with an empty array
-            code = replaceVitePreload(code);
+
+          if (code.includes("__VITE_PRELOAD__")) {
+            // Write original code to debug file
+            if (debug) {
+              writeDebugFile(
+                code,
+                `temp-original-${fileName.replace(/\//g, "-")}.js`
+              );
+            }
+            if (requirements.strongLazyLoading) {
+              code = replaceVueRouterPreload(code, bundle);
+            } else {
+              code = replaceVitePreload(code);
+            }
+
+            if (debug) {
+              // Write transformed code to debug file
+              writeDebugFile(
+                code,
+                `temp-transformed-${fileName.replace(/\//g, "-")}.js`
+              );
+            }
           }
           const hash = generateHash(code, algorithm);
           if (!collection["script-src-elem"].has(hash)) {
@@ -189,17 +215,16 @@ export const transformIndexHtmlHandler = async ({
 
   const InjectedHtmlTags = policyToTag(policyString);
 
-  if(isVite6){
-    const changedHtml = handleCSPInsert(newHtml, policyString)
+  if (isVite6) {
+    const changedHtml = handleCSPInsert(newHtml, policyString);
     return {
       html: changedHtml,
-      tags: []
-    }
+      tags: [],
+    };
   }
 
   return {
     html: newHtml,
     tags: InjectedHtmlTags,
   };
-
 };

@@ -3,7 +3,15 @@ import { PluginContext } from "rollup";
 
 export type HashAlgorithms = "sha256" | "sha384" | "sha512";
 
-export type Outlier = "tailwind" | "sass" | "scss" | "less" | "stylus" | "vue";
+export type DevOutlier =
+  | "tailwind"
+  | "sass"
+  | "scss"
+  | "less"
+  | "stylus"
+  | "vue";
+
+export type BuildOutlier = "vue-router";
 
 export type DevOptions = {
   /**
@@ -15,7 +23,7 @@ export type DevOptions = {
    * This is a list of outliers that require special treatment during dev mode.
    * @example ["tailwind", "sass"]
    */
-  outlierSupport?: Array<Outlier>;
+  outlierSupport?: Array<DevOutlier>;
 };
 
 export type BuildOptions = {
@@ -24,6 +32,11 @@ export type BuildOptions = {
    * @default false
    */
   sri?: boolean;
+  /**
+   * A list of outliers that require special treatment when doing a build
+   * @default []
+   */
+  outlierSupport?: Array<BuildOutlier>;
 };
 
 export type MyPluginOptions = {
@@ -72,6 +85,10 @@ export type MyPluginOptions = {
    * Options that apply only when running `vite build`.
    */
   build?: BuildOptions;
+  /**
+   * Debug is meant for plugin developers only
+   */
+  debug?: boolean;
 };
 
 export type HashCache = {
@@ -127,3 +144,18 @@ export type BundleContext = Record<
   string,
   { type: "chunk" | "asset"; hash: string }
 >;
+
+export type CSPPluginContext = {
+  options: MyPluginOptions;
+  algorithm: HashAlgorithms;
+  collection: HashCollection;
+  policy: CSPPolicy;
+  requirements: {
+    postTransform: boolean;
+    strongLazyLoading: boolean;
+  };
+  debug: boolean;
+  isDevMode: boolean;
+  isVite6: boolean;
+  shouldSkip: ShouldSkip;
+};
