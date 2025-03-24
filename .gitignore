@@ -44,3 +44,8 @@ playwright-report/
 
 # Ignore scripts playground
 scripts/playground/*
+
+# Temp debug files
+apps/**/temp-original-*.js
+apps/**/temp-transformed-*.js
+
