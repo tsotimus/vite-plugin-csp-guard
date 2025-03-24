@@ -10,6 +10,7 @@ export default defineConfig({
       build: {
         sri: true,
       },
+      debug: true,
     }) as PluginOption,
   ],
 });

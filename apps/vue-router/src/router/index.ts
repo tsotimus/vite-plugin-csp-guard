@@ -13,6 +13,11 @@ const router = createRouter({
       name: "hello",
       component: () => import("../Hello.vue"),
     },
+    {
+      path: "/bye",
+      name: "bye",
+      component: () => import("../Bye.vue"),
+    },
   ],
 });
 

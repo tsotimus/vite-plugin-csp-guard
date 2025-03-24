@@ -6,13 +6,25 @@ export const replaceVitePreload = (code: string) => {
 
 // Generate a Vite dependency map declaration based on the bundle files
 export const generateViteDepMap = (bundle: OutputBundle) => {
-  // We'll create separate arrays for JS and CSS assets to ensure correct order
-  const jsAssets: string[] = [];
-  const cssAssets: string[] = [];
+  // We'll use a single array for paired assets (each JS file followed by its CSS files)
+  const pairedAssets: string[] = [];
   // Track files already added to avoid duplicates
   const addedFiles = new Set<string>();
+  // Keep track of component names to match JS with CSS
+  const componentMap: Record<string, { js?: string; css: string[] }> = {};
 
-  // Look for lazy-loaded chunks (non-index JS chunks)
+  // Debug log the bundle structure to understand what we're working with
+  console.log(`Bundle contains ${Object.keys(bundle).length} files:`);
+  for (const key of Object.keys(bundle)) {
+    const item = bundle[key];
+    if (item) {
+      console.log(
+        `- ${key}: ${item.type}, fileName: ${(item as any).fileName || "N/A"}`
+      );
+    }
+  }
+
+  // First pass: collect all components and their assets
   for (const fileName of Object.keys(bundle)) {
     const chunk = bundle[fileName];
     if (!chunk) continue;
@@ -20,104 +32,113 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
     // Skip anything related to index
     if (fileName.includes("index")) continue;
 
-    // Process JS chunks
+    // First handle JS files and try to extract component names
     if (chunk.type === "chunk" && fileName.endsWith(".js")) {
-      const assetPath = `"assets/${fileName.split("/").pop()}"`;
-      if (!addedFiles.has(assetPath)) {
-        jsAssets.push(assetPath);
-        addedFiles.add(assetPath);
-      }
+      // Extract component name from file path (like 'Hello' from 'Hello-123abc.js')
+      const componentMatch = fileName.match(/([^\/]+)-[^-]+\.js$/);
+      if (componentMatch && componentMatch[1]) {
+        const componentName = componentMatch[1]; // e.g., 'Hello'
 
-      // Need to cast to OutputChunk to access viteMetadata
-      const outputChunk = chunk as OutputChunk;
+        if (!componentMap[componentName]) {
+          componentMap[componentName] = { css: [] };
+        }
 
-      // Find associated CSS for this chunk
-      if (outputChunk.viteMetadata && outputChunk.viteMetadata.importedCss) {
-        const importedCss = outputChunk.viteMetadata.importedCss;
+        const assetPath = `"assets/${fileName.split("/").pop()}"`;
+        componentMap[componentName].js = assetPath;
 
-        // Handle both array and Set types for importedCss
-        const cssFiles = Array.isArray(importedCss)
-          ? importedCss
-          : importedCss instanceof Set
-            ? Array.from(importedCss)
-            : [];
+        // For JS chunks, also look at their imported CSS directly through viteMetadata
+        const outputChunk = chunk as OutputChunk;
+        if (outputChunk.viteMetadata && outputChunk.viteMetadata.importedCss) {
+          const importedCss = outputChunk.viteMetadata.importedCss;
 
-        for (const cssFile of cssFiles) {
-          // Skip index CSS
-          if (cssFile.includes("index")) continue;
+          // Handle both array and Set types for importedCss
+          const cssFiles = Array.isArray(importedCss)
+            ? importedCss
+            : importedCss instanceof Set
+              ? Array.from(importedCss)
+              : [];
 
-          const cssAssetPath = `"assets/${cssFile.split("/").pop()}"`;
-          if (!addedFiles.has(cssAssetPath)) {
-            cssAssets.push(cssAssetPath);
-            addedFiles.add(cssAssetPath);
+          for (const cssFile of cssFiles) {
+            if (cssFile && !cssFile.includes("index")) {
+              const cssAssetPath = `"assets/${cssFile.split("/").pop()}"`;
+              console.log(
+                `Found CSS via viteMetadata for ${componentName}: ${cssAssetPath}`
+              );
+              componentMap[componentName].css.push(cssAssetPath);
+            }
           }
         }
       }
     }
+  }
 
-    // Process direct CSS files
+  // Second pass: look for CSS files directly
+  for (const fileName of Object.keys(bundle)) {
+    const chunk = bundle[fileName];
     if (
-      fileName.endsWith(".css") &&
-      !fileName.includes("index") &&
-      chunk.type === "asset"
-    ) {
-      const cssAssetPath = `"assets/${fileName.split("/").pop()}"`;
-      if (!addedFiles.has(cssAssetPath)) {
-        cssAssets.push(cssAssetPath);
-        addedFiles.add(cssAssetPath);
-      }
-    }
-  }
+      !chunk ||
+      chunk.type !== "asset" ||
+      !fileName.endsWith(".css") ||
+      fileName.includes("index")
+    )
+      continue;
 
-  // Special handling for Hello component (fallback for vue-router example)
-  const hasHelloComponent = Object.keys(bundle).some(
-    (name) => name.includes("Hello") && !name.includes("index")
-  );
+    // Try to match CSS file to a component
+    for (const componentName of Object.keys(componentMap)) {
+      const component = componentMap[componentName];
+      if (!component) continue;
 
-  if (hasHelloComponent) {
-    for (const fileName of Object.keys(bundle)) {
-      const bundleItem = bundle[fileName];
-      if (!bundleItem) continue;
-
-      // Add Hello JS if not already added
-      if (
-        fileName.endsWith(".js") &&
-        fileName.includes("Hello") &&
-        !fileName.includes("index") &&
-        bundleItem.type === "chunk"
-      ) {
-        const jsPath = `"assets/${fileName.split("/").pop()}"`;
-        if (!addedFiles.has(jsPath)) {
-          jsAssets.push(jsPath);
-          addedFiles.add(jsPath);
-        }
-      }
-
-      // Add Hello CSS if not already added
-      if (
-        fileName.endsWith(".css") &&
-        fileName.includes("Hello") &&
-        !fileName.includes("index")
-      ) {
+      if (fileName.includes(componentName)) {
         const cssPath = `"assets/${fileName.split("/").pop()}"`;
-        if (!addedFiles.has(cssPath)) {
-          cssAssets.push(cssPath);
-          addedFiles.add(cssPath);
+        console.log(`Found CSS file for ${componentName}: ${cssPath}`);
+
+        if (!component.css.includes(cssPath)) {
+          component.css.push(cssPath);
         }
       }
     }
   }
 
-  // Combine assets with JS first, then CSS (this is the order Vite seems to use)
-  const assets = [...jsAssets, ...cssAssets];
+  console.log("Component map before building asset list:");
+  for (const [componentName, assets] of Object.entries(componentMap)) {
+    if (assets) {
+      console.log(
+        `- ${componentName}: JS=${assets.js || "none"}, CSS=[${assets.css.join(", ")}]`
+      );
+    }
+  }
+
+  // Third pass: build the paired asset list
+  for (const componentName of Object.keys(componentMap)) {
+    const component = componentMap[componentName];
+    if (!component) continue;
+
+    // Add JS first if it exists
+    if (component.js && !addedFiles.has(component.js)) {
+      pairedAssets.push(component.js);
+      addedFiles.add(component.js);
+
+      // Then add all CSS files associated with this component
+      if (component.css && Array.isArray(component.css)) {
+        component.css.forEach((cssPath) => {
+          if (cssPath && !addedFiles.has(cssPath)) {
+            pairedAssets.push(cssPath);
+            addedFiles.add(cssPath);
+          }
+        });
+      }
+    }
+  }
+
+  console.log("Final paired assets:", pairedAssets);
 
   // If we have no assets, use a placeholder
-  if (assets.length === 0) {
-    assets.push('"placeholder.js"');
+  if (pairedAssets.length === 0) {
+    pairedAssets.push('"placeholder.js"');
   }
 
   // Generate the Vite map dependencies declaration with a newline at the end
-  const declaration = `const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=[${assets.join(",")}])))=>i.map(i=>d[i]);\n`;
+  const declaration = `const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=[${pairedAssets.join(",")}])))=>i.map(i=>d[i]);\n`;
   return declaration;
 };
 
@@ -125,8 +146,9 @@ export const replaceVueRouterPreload = (
   code: string,
   bundle?: OutputBundle
 ) => {
-  // Create a counter for occurrences
+  // Create a counter for occurrences and a starting index for dependencies
   let occurrenceCounter = 0;
+  let depIndex = 0;
 
   // Replace __VITE_PRELOAD__ instances with appropriate values based on occurrence order
   // This should not affect any other part of the code
@@ -137,8 +159,10 @@ export const replaceVueRouterPreload = (
       return "void 0";
     }
 
-    // For subsequent occurrences, use __vite__mapDeps with incrementing index
-    const result = `__vite__mapDeps([0,${occurrenceCounter}])`;
+    // For subsequent occurrences, use __vite__mapDeps with sequential indices
+    // Each route gets 2 consecutive indices (for JS and CSS)
+    const result = `__vite__mapDeps([${depIndex},${depIndex + 1}])`;
+    depIndex += 2; // Increment by 2 for the next route
     occurrenceCounter++;
     return result;
   });
