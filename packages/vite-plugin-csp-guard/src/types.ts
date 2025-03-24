@@ -32,8 +32,11 @@ export type BuildOptions = {
    * @default false
    */
   sri?: boolean;
-
-  outlierSupport: Array<BuildOutlier>;
+  /**
+   * A list of outliers that require special treatment when doing a build
+   * @default []
+   */
+  outlierSupport?: Array<BuildOutlier>;
 };
 
 export type MyPluginOptions = {
@@ -141,3 +144,18 @@ export type BundleContext = Record<
   string,
   { type: "chunk" | "asset"; hash: string }
 >;
+
+export type CSPPluginContext = {
+  options: MyPluginOptions;
+  algorithm: HashAlgorithms;
+  collection: HashCollection;
+  policy: CSPPolicy;
+  requirements: {
+    postTransform: boolean;
+    strongLazyLoading: boolean;
+  };
+  debug: boolean;
+  isDevMode: boolean;
+  isVite6: boolean;
+  shouldSkip: ShouldSkip;
+};

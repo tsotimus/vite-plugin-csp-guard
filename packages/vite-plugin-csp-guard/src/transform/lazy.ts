@@ -142,10 +142,7 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
   return declaration;
 };
 
-export const replaceVueRouterPreload = (
-  code: string,
-  bundle?: OutputBundle
-) => {
+export const replaceVueRouterPreload = (code: string, bundle: OutputBundle) => {
   // Create a counter for occurrences and a starting index for dependencies
   let occurrenceCounter = 0;
   let depIndex = 0;
@@ -168,7 +165,7 @@ export const replaceVueRouterPreload = (
   });
 
   // Generate and add the dependency map if needed and if bundle is provided
-  if (bundle && !newCode.includes("const __vite__mapDeps=")) {
+  if (!newCode.includes("const __vite__mapDeps=")) {
     const depMapDeclaration = generateViteDepMap(bundle);
     newCode = depMapDeclaration + newCode;
   }

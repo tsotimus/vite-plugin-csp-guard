@@ -1,6 +1,9 @@
 import { createFilter } from "vite";
-import { Outlier, WarnMissingPolicyProps } from "./types";
-import { REQUIRE_POST_TRANSFORM } from "./transform/constants";
+import { BuildOutlier, DevOutlier, WarnMissingPolicyProps } from "./types";
+import {
+  REQUIRE_POST_TRANSFORM,
+  REQUIRE_STRONGER_LAZY_LOADING,
+} from "./transform/constants";
 
 export const extractBaseURL = (url: string): string | false => {
   try {
@@ -36,10 +39,16 @@ export const jsFilter = createFilter(["**/*.js?(*)", "**/*.jsx?(*)"]);
 export const tsFilter = createFilter(["**/*.ts", "**/*.tsx"]);
 export const htmlFilter = createFilter("**.html");
 
-export const parseOutliers = (outliers: Array<Outlier>) => {
+export const parseOutliers = (
+  devOutliers: Array<DevOutlier>,
+  buildOutliers: Array<BuildOutlier>
+) => {
   return {
-    postTransform: outliers.some((outlier) =>
+    postTransform: devOutliers.some((outlier) =>
       REQUIRE_POST_TRANSFORM.includes(outlier)
+    ),
+    strongLazyLoading: buildOutliers.some((outlier) =>
+      REQUIRE_STRONGER_LAZY_LOADING.includes(outlier)
     ),
   };
 };
@@ -47,7 +56,7 @@ export const parseOutliers = (outliers: Array<Outlier>) => {
 export const getViteMajorVersion = (v: string) => {
   const viteVersion = v.split(".")[0];
   return viteVersion;
-}
+};
 
 export const removeEscapedBacktick = (str: string) => {
   return str.replace(/\\`/g, "`");

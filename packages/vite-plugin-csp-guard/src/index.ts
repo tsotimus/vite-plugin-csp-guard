@@ -1,6 +1,10 @@
 import { Plugin, ViteDevServer, version } from "vite";
 import { PluginContext } from "rollup";
-import { MyPluginOptions, TransformationStatus } from "./types";
+import {
+  CSPPluginContext,
+  MyPluginOptions,
+  TransformationStatus,
+} from "./types";
 import { DEFAULT_DEV_POLICY, DEFAULT_POLICY } from "./policy/constants";
 import {
   calculateSkip,
@@ -32,12 +36,13 @@ export default function vitePluginCSP(
     override = false,
     debug = false,
   } = options;
+
   let pluginContext: PluginContext | undefined = undefined; //Needed for logging
   let isDevMode = false; // This is a flag to check if we are in dev mode
   let server: ViteDevServer | undefined = undefined;
 
   const { outlierSupport = [], run = false } = dev;
-  const { sri = false } = build;
+  const { sri = false, outlierSupport: buildOutlierSupport = [] } = build;
 
   const CORE_COLLECTION = createNewCollection();
 
@@ -56,10 +61,32 @@ export default function vitePluginCSP(
   const transformationStatus: TransformationStatus = new Map<string, boolean>();
   const isTransformationStatusEmpty = () => transformationStatus.size === 0;
 
-  const requirements = parseOutliers(outlierSupport);
+  const requirements = parseOutliers(outlierSupport, buildOutlierSupport);
   const shouldSkip = calculateSkip(policy);
 
   const viteVersion = getViteMajorVersion(version);
+  const isVite6 = viteVersion === "6";
+
+  // Create the shared plugin context
+  const cspContext: CSPPluginContext = {
+    options: {
+      algorithm,
+      policy,
+      dev,
+      features,
+      build,
+      override,
+      debug,
+    },
+    algorithm,
+    collection: CORE_COLLECTION,
+    policy: policy || {},
+    requirements,
+    debug,
+    isDevMode,
+    isVite6,
+    shouldSkip,
+  };
 
   return {
     name: "vite-plugin-csp-guard",
@@ -125,8 +152,7 @@ export default function vitePluginCSP(
         await transformHandler({
           code,
           id,
-          algorithm,
-          CORE_COLLECTION,
+          cspContext,
           transformationStatus,
           server,
           transformMode: requirements.postTransform ? "post" : "pre",
@@ -147,18 +173,16 @@ export default function vitePluginCSP(
 
         const effectivePolicy = mergePolicies(defaultPolicy, policy, override);
 
+        // Update the effective policy in the context
+        cspContext.policy = effectivePolicy;
+
         return transformIndexHtmlHandler({
           html,
           context,
-          algorithm,
-          policy: effectivePolicy,
-          collection: CORE_COLLECTION,
           pluginContext,
           isTransformationStatusEmpty: isTransformationStatusEmpty(),
+          cspContext,
           sri,
-          shouldSkip,
-          isVite6: viteVersion === "6",
-          debug,
         });
       },
     },
