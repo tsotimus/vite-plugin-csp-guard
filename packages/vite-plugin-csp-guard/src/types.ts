@@ -3,7 +3,15 @@ import { PluginContext } from "rollup";
 
 export type HashAlgorithms = "sha256" | "sha384" | "sha512";
 
-export type Outlier = "tailwind" | "sass" | "scss" | "less" | "stylus" | "vue";
+export type DevOutlier =
+  | "tailwind"
+  | "sass"
+  | "scss"
+  | "less"
+  | "stylus"
+  | "vue";
+
+export type BuildOutlier = "vue-router";
 
 export type DevOptions = {
   /**
@@ -15,7 +23,7 @@ export type DevOptions = {
    * This is a list of outliers that require special treatment during dev mode.
    * @example ["tailwind", "sass"]
    */
-  outlierSupport?: Array<Outlier>;
+  outlierSupport?: Array<DevOutlier>;
 };
 
 export type BuildOptions = {
@@ -24,6 +32,8 @@ export type BuildOptions = {
    * @default false
    */
   sri?: boolean;
+
+  outlierSupport: Array<BuildOutlier>;
 };
 
 export type MyPluginOptions = {
