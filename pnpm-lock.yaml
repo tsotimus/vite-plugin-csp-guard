@@ -690,6 +690,9 @@ importers:
       vite:
         specifier: ^6.2.0
         version: 6.2.0(@types/node@22.13.14)(jiti@2.4.2)(less@4.2.2)(lightningcss@1.29.1)(sass@1.85.1)(stylus@0.64.0)(terser@5.37.0)(tsx@4.19.3)(yaml@2.7.0)
+      vite-plugin-csp-guard:
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin-csp-guard
 
   apps/vite4:
     dependencies:
