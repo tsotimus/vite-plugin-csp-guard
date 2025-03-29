@@ -14,13 +14,16 @@ export default defineConfig({
     }),
     react(),
     csp({
+      dev: {
+        run: true,
+      },
       build: {
         sri: true,
       },
     }) as PluginOption,
   ],
   server: {
-    port: 4022,
+    port: 3022,
   },
   preview: {
     port: 4022,
