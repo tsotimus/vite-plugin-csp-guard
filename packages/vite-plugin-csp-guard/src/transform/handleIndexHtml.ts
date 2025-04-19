@@ -42,7 +42,7 @@ export function handleIndexHtml({
     // Imported Scripts
     if (Object.keys(el.attribs).length && el.attribs?.src?.length) {
       try {
-        const scriptSrc = el.attribs.src;
+        const scriptSrc = el.attribs.src.replace(/\?\d+/, '');
 
         warnMissingPolicy({
           source: scriptSrc,
