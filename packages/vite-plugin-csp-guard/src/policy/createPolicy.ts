@@ -35,6 +35,9 @@ export const generatePolicyString = ({
   return policyString;
 };
 
+//TODO: Implement <meta name="referrer" content="origin" /> tag
+// https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy#integration_with_css
+
 export const policyToTag = (policy: string): HtmlTagDescriptor[] => {
   return [
     {
