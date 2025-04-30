@@ -2,6 +2,9 @@
   "name": "vite-csp",
   "private": true,
   "scripts": {
+    "tanstack-router:dev": "turbo dev --filter=tanstack-router",
+    "tanstack-router:build": "turbo build --filter=tanstack-router",
+    "tanstack-router:preview": "turbo preview --filter=tanstack-router",
     "vue-router:dev": "turbo dev --filter=vue-router",
     "vue-router:build": "turbo build --filter=vue-router",
     "vue-router:preview": "turbo preview --filter=vue-router",
