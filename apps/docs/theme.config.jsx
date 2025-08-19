@@ -3,7 +3,8 @@ export default {
   project: {
     link: "https://github.com/tsotimus/vite-plugin-csp-guard",
   },
-  docsRepositoryBase: "https://github.com/tsotimus/vite-plugin-csp-guard/tree/main/apps/docs",
+  docsRepositoryBase:
+    "https://github.com/tsotimus/vite-plugin-csp-guard/tree/main/apps/docs",
   useNextSeoProps() {
     return {
       logo: <img src="/logo.png" alt="Vite CSP Guard" />,
@@ -22,14 +23,16 @@ export default {
   },
   footer: {
     text: (
-        <span>
-          GPL-3.0 {new Date().getFullYear()} ©{" "}
-          <a href="https://vite-csp.tsotne.co.uk" target="_blank">
-            Vite CSP Guard{" - "}
-          </a>
-          Created by <a href="https://tsotne.co.uk" target="_blank">Tsotne</a>
-        </span>
-
+      <span>
+        MIT {new Date().getFullYear()} ©{" "}
+        <a href="https://vite-csp.tsotne.co.uk" target="_blank">
+          Vite CSP Guard{" - "}
+        </a>
+        Created by{" "}
+        <a href="https://tsotne.co.uk" target="_blank">
+          Tsotne
+        </a>
+      </span>
     ),
   },
   darkMode: true,

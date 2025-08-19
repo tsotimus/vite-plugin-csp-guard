@@ -19,7 +19,7 @@
   "bugs": {
     "url": "https://github.com/tsotimus/vite-plugin-csp-guard/issues"
   },
-  "license": "GPL-3.0-only",
+  "license": "MIT",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "exports": {
