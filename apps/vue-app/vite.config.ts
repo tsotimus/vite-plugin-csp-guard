@@ -9,7 +9,7 @@ export default defineConfig({
     csp({
       dev: { run: true, outlierSupport: ["vue"] },
       build: { sri: true },
-    }),
+    }) as PluginOption,
   ],
   preview: {
     port: 4007,

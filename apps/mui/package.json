@@ -27,6 +27,7 @@
     "vite-plugin-csp-guard": "workspace:^",
     "@repo/typescript-config": "workspace:^",
     "@repo/testing": "workspace:^",
+    "vite": "catalog:",
     "@repo/eslint-config": "workspace:^"
   }
 }
