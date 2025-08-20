@@ -13,7 +13,7 @@ export default defineConfig({
       build: {
         sri: true,
       },
-    })
+    }) as PluginOption,
   ],
   preview: {
     port: 4009,

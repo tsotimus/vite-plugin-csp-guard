@@ -17,9 +17,9 @@ export default defineConfig({
         "object-src": ["'none'"],
       },
       build: {
-        sri: true
+        sri: true,
       },
-    }),
+    }) as PluginOption,
   ],
   preview: {
     port: 4000,
