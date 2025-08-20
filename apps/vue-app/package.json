@@ -16,6 +16,7 @@
     "@repo/testing": "workspace:^",
     "@vitejs/plugin-vue": "^5.2.1",
     "vue-tsc": "^2.0.24",
+    "vite": "catalog:",
     "vite-plugin-csp-guard": "workspace:^"
   }
 }

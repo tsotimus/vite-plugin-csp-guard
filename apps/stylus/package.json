@@ -26,6 +26,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.7",
     "stylus": "^0.63.0",
+    "vite": "catalog:",
     "vite-plugin-csp-guard": "workspace:^"
   }
 }
