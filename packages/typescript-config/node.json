@@ -8,6 +8,9 @@
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "noEmit": false,
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "outDir": "./node_modules/.tmp/tsconfig-node"
     }
 }
   
