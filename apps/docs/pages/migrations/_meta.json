@@ -2,5 +2,9 @@
     "v2": {
         "title": "V2",
         "href": "/migrations/v2"
+    },
+    "v3": {
+        "title": "V3",
+        "href": "/migrations/v3"
     }
 }

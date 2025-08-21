@@ -1,4 +1,4 @@
-import { Plugin, ViteDevServer, version } from "vite";
+import { Plugin, ViteDevServer } from "vite";
 import { PluginContext } from "rollup";
 import {
   CSPPluginContext,
@@ -14,7 +14,6 @@ import {
 import { transformHandler, transformIndexHtmlHandler } from "./transform";
 import {
   cssFilter,
-  getViteMajorVersion,
   jsFilter,
   parseOutliers,
   preCssFilter,
@@ -40,6 +39,7 @@ export default function vitePluginCSP(
   let pluginContext: PluginContext | undefined = undefined; //Needed for logging
   let isDevMode = false; // This is a flag to check if we are in dev mode
   let server: ViteDevServer | undefined = undefined;
+  let viteVersion: string | undefined = undefined;
 
   const { outlierSupport = [], run = false } = dev;
   const { sri = false, outlierSupport: buildOutlierSupport = [] } = build;
@@ -64,9 +64,6 @@ export default function vitePluginCSP(
   const requirements = parseOutliers(outlierSupport, buildOutlierSupport);
   const shouldSkip = calculateSkip(policy);
 
-  const viteVersion = getViteMajorVersion(version);
-  const isVite6 = viteVersion === "6";
-
   // Create the shared plugin context
   const cspContext: CSPPluginContext = {
     options: {
@@ -84,7 +81,7 @@ export default function vitePluginCSP(
     requirements,
     debug,
     isDevMode,
-    isVite6,
+    viteVersion,
     shouldSkip,
   };
 
@@ -93,6 +90,12 @@ export default function vitePluginCSP(
     enforce: "post",
     buildStart() {
       pluginContext = this;
+      viteVersion = this.meta.viteVersion;
+      if (!viteVersion) {
+        throw new Error(
+          "Please ensure your using a minimum version of vite 7.0.0."
+        );
+      }
     },
     apply(config, { command }) {
       // If we are in dev mode return true

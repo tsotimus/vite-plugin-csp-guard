@@ -3,7 +3,7 @@ import { addHash, generateHash } from "../policy/core";
 import { BundleContext, TransformationStatus } from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
 import { PluginContext } from "rollup";
-import { generatePolicyString, policyToTag } from "../policy/createPolicy";
+import { generatePolicyString } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
 import { getCSS } from "../css/extraction";
 import { replaceVitePreload, replaceVueRouterPreload } from "./lazy";
@@ -127,15 +127,8 @@ export const transformIndexHtmlHandler = ({
   cspContext,
   sri,
 }: TransformIndexHtmlHandlerProps) => {
-  const {
-    algorithm,
-    policy,
-    collection,
-    shouldSkip,
-    isVite6,
-    debug,
-    requirements,
-  } = cspContext;
+  const { algorithm, policy, collection, shouldSkip, debug, requirements } =
+    cspContext;
 
   if (isTransformationStatusEmpty && server) {
     //Return early if there are no transformations and we are in dev mode
@@ -213,18 +206,15 @@ export const transformIndexHtmlHandler = ({
     policy: policy,
   });
 
-  const InjectedHtmlTags = policyToTag(policyString);
-
-  if (isVite6) {
-    const changedHtml = handleCSPInsert(newHtml, policyString);
-    return {
-      html: changedHtml,
-      tags: [],
-    };
-  }
-
+  const changedHtml = handleCSPInsert(newHtml, policyString);
   return {
-    html: newHtml,
-    tags: InjectedHtmlTags,
+    html: changedHtml,
+    tags: [],
   };
+  // Vite 6 and probably 7 don't support below
+  // const InjectedHtmlTags = policyToTag(policyString);
+  // return {
+  //   html: newHtml,
+  //   tags: InjectedHtmlTags,
+  // };
 };

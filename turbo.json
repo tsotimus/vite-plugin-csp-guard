@@ -24,6 +24,5 @@
       "dependsOn": ["^build", "build"],
       "persistent": true
     }
-  },
-  "ui": "stream"
+  }
 }
