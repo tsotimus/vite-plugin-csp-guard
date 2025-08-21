@@ -3,7 +3,7 @@ import { addHash, generateHash } from "../policy/core";
 import { BundleContext, TransformationStatus } from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
 import { PluginContext } from "rollup";
-import { generatePolicyString, policyToTag } from "../policy/createPolicy";
+import { generatePolicyString } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
 import { getCSS } from "../css/extraction";
 import { replaceVitePreload, replaceVueRouterPreload } from "./lazy";

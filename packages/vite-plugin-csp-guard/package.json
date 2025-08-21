@@ -31,8 +31,8 @@
   "typings": "dist/index.d.ts",
   "type": "module",
   "peerDependencies": {
-    "vite": ">=7.0.0"
-  },
+    "vite": "^7.0.0"
+  }
   "devDependencies": {
     "@repo/eslint-config": "workspace:^",
     "@rollup/plugin-commonjs": "^26.0.1",
