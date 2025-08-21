@@ -91,6 +91,11 @@ export default function vitePluginCSP(
     buildStart() {
       pluginContext = this;
       viteVersion = this.meta.viteVersion;
+      if (!viteVersion) {
+        throw new Error(
+          "Please ensure your using a minimum version of vite 7.0.0."
+        );
+      }
     },
     apply(config, { command }) {
       // If we are in dev mode return true
