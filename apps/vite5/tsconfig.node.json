@@ -1,8 +1,0 @@
-{
-  "$schema": "https://json.schemastore.org/tsconfig",
-  "extends": "@repo/typescript-config/node",
-  "compilerOptions": {  
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
-  },
-  "include": ["vite.config.ts"]
-}
