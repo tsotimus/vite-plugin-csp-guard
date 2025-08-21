@@ -90,7 +90,7 @@ export default function vitePluginCSP(
     enforce: "post",
     buildStart() {
       pluginContext = this;
-      viteVersion = this.meta?.viteVersion;
+      viteVersion = this.meta.viteVersion;
     },
     apply(config, { command }) {
       // If we are in dev mode return true
