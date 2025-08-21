@@ -20,25 +20,18 @@
     "url": "https://github.com/tsotimus/vite-plugin-csp-guard/issues"
   },
   "license": "MIT",
-  "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs.js",
       "import": "./dist/index.esm.js"
-    },
-    "./server": {
-      "types": "./dist/server/types/index.d.ts",
-      "import": "./dist/server/index.esm.js",
-      "require": "./dist/server/index.cjs.js"
     }
   },
   "types": "dist/index.d.ts",
   "typings": "dist/index.d.ts",
   "type": "module",
   "peerDependencies": {
-    "vite": ">=5.0.0"
+    "vite": ">=7.0.0"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:^",
