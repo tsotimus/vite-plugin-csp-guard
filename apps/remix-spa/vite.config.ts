@@ -2,9 +2,11 @@ import { vitePlugin as remix } from "@remix-run/dev";
 import { defineConfig, PluginOption } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import csp from "vite-plugin-csp-guard";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [
+    tailwindcss() as PluginOption,
     remix({
       future: {
         v3_fetcherPersist: true,
