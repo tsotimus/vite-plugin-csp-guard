@@ -53,11 +53,6 @@ export const parseOutliers = (
   };
 };
 
-export const getViteMajorVersion = (v: string) => {
-  const viteVersion = v.split(".")[0];
-  return viteVersion;
-};
-
 export const removeEscapedBacktick = (str: string) => {
   return str.replace(/\\`/g, "`");
 };

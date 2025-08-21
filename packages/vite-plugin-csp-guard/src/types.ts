@@ -156,6 +156,6 @@ export type CSPPluginContext = {
   };
   debug: boolean;
   isDevMode: boolean;
-  isVite6: boolean;
+  viteVersion?: string;
   shouldSkip: ShouldSkip;
 };
