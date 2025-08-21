@@ -207,24 +207,6 @@ const APPS = [
     ],
   },
   {
-    url: "http://localhost:3013",
-    command: `pnpm v6:dev`,
-    testDir: "./apps/vite6/tests",
-    name: "Vite6 - Dev",
-    testMatch: [
-      /^(?!.*\/preview-only\/).*\.spec\.ts$/, // Exclude any file inside the preview-only folder
-    ],
-  },
-  {
-    url: "http://localhost:4013",
-    command: `pnpm v6:preview`,
-    testDir: "./apps/vite6/tests",
-    name: "Vite6 - Build",
-    testMatch: [
-      /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
-    ],
-  },
-  {
     url: "http://localhost:3014",
     command: `pnpm tailwind4:dev`,
     testDir: "./apps/tailwind4/tests",
