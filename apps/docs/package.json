@@ -22,7 +22,7 @@
     "devDependencies": {
         "@types/node": "latest",
         "@types/react": "latest",
-        "eslint": "^8.0.0",
+        "eslint": "^9.36.0",
         "eslint-config-next": "latest"
     }
 }
