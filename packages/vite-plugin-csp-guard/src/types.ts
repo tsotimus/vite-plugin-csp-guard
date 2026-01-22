@@ -24,6 +24,12 @@ export type DevOptions = {
    * @example ["tailwind", "sass"]
    */
   outlierSupport?: Array<DevOutlier>;
+  /**
+   * Override the default dev policy. When true, only your policy will be used in dev mode. When false or undefined, your policy will be merged with the default dev policy.
+   * Falls back to the top-level `override` option if not specified.
+   * @default undefined (uses top-level override setting)
+   */
+  override?: boolean;
 };
 
 export type BuildOptions = {
@@ -37,6 +43,12 @@ export type BuildOptions = {
    * @default []
    */
   outlierSupport?: Array<BuildOutlier>;
+  /**
+   * Override the default build policy. When true, only your policy will be used in production builds. When false or undefined, your policy will be merged with the default policy.
+   * Falls back to the top-level `override` option if not specified.
+   * @default undefined (uses top-level override setting)
+   */
+  override?: boolean;
 };
 
 export type MyPluginOptions = {
@@ -73,7 +85,9 @@ export type MyPluginOptions = {
     cssInJs?: boolean;
   };
   /**
-   * This is a flag to override the default policy. When set to false, the plugin will merge the default policy (provided by the plugin) with your policy. When set to true, the plugin will **only** use your policy only.
+   * This is a flag to override the default policy. When set to false, the plugin will merge the default policy (provided by the plugin) with your policy. When set to true, the plugin will **only** use your policy.
+   * 
+   * This serves as the default override behavior for both dev and build modes. You can override this on a per-environment basis using `dev.override` or `build.override`.
    * @default false
    */
   override?: boolean;

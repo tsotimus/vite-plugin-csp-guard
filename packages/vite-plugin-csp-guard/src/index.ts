@@ -41,8 +41,8 @@ export default function vitePluginCSP(
   let server: ViteDevServer | undefined = undefined;
   let viteVersion: string | undefined = undefined;
 
-  const { outlierSupport = [], run = false } = dev;
-  const { sri = false, outlierSupport: buildOutlierSupport = [] } = build;
+  const { outlierSupport = [], run = false, override: devOverride } = dev;
+  const { sri = false, outlierSupport: buildOutlierSupport = [], override: buildOverride } = build;
 
   const CORE_COLLECTION = createNewCollection();
 
@@ -174,7 +174,11 @@ export default function vitePluginCSP(
           ? DEFAULT_DEV_POLICY
           : DEFAULT_POLICY;
 
-        const effectivePolicy = mergePolicies(defaultPolicy, policy, override);
+        // Use environment-specific override if set, otherwise fall back to top-level override
+        const shouldOverride = isDevAndAllowed() 
+          ? (devOverride ?? override)
+          : (buildOverride ?? override);
+        const effectivePolicy = mergePolicies(defaultPolicy, policy, shouldOverride);
 
         // Update the effective policy in the context
         cspContext.policy = effectivePolicy;
