@@ -1,0 +1,36 @@
+name: PR Dependency Review
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
+    branches: [main]
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Post Dependency Diff
+        uses: dev-herald/comment@v1
+        with:
+          api-key: ${{ secrets.DEV_HERALD_KEY }}
+          pr-number: ${{ github.event.pull_request.number }}
+          sticky-id: dependency-diff
+          signal: "DEPENDENCY_DIFF"
+          enable-cve: "true"
+          max-deps: "50"
+
+      - name: Post New Dependency Signal
+        uses: dev-herald/comment@v1
+        with:
+          api-key: ${{ secrets.DEV_HERALD_KEY }}
+          pr-number: ${{ github.event.pull_request.number }}
+          sticky-id: new-deps
+          signal: "NEW_DEPENDENCY"
+          enable-cve: "true"
+          max-deps: "25"
