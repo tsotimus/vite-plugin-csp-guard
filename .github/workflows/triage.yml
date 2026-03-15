@@ -36,6 +36,19 @@ jobs:
 
       - name: Run tests
         run: pnpm test
+
+      - name: Post Test Results
+        if: always()
+        uses: dev-herald/comment@v1
+        with:
+          api-key: ${{ secrets.DEV_HERALD_KEY }}
+          pr-number: ${{ github.event.pull_request.number }}
+          sticky-id: test-results
+          signal: "TEST_RESULTS"
+          test-results: |
+            - name: E2E Tests
+              path: playwright-results/results.json
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:
