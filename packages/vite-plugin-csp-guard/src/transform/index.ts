@@ -117,6 +117,7 @@ export interface TransformIndexHtmlHandlerProps {
   isTransformationStatusEmpty: boolean;
   cspContext: CSPPluginContext;
   sri: boolean;
+  chunkHashes?: Map<string, string>;
 }
 
 export const transformIndexHtmlHandler = ({
@@ -126,6 +127,7 @@ export const transformIndexHtmlHandler = ({
   isTransformationStatusEmpty,
   cspContext,
   sri,
+  chunkHashes,
 }: TransformIndexHtmlHandlerProps) => {
   const { algorithm, policy, collection, shouldSkip, debug, requirements } =
     cspContext;
@@ -143,48 +145,69 @@ export const transformIndexHtmlHandler = ({
 
       if (currentFile) {
         if (currentFile.type === "chunk" && !shouldSkip["script-src-elem"]) {
-          let code = currentFile.code;
+          // Use pre-calculated hash from renderChunk if available (build mode)
+          // This ensures we use the hash of the final minified code
+          let hash: string;
 
-          if (code.includes("__VITE_PRELOAD__")) {
-            // Write original code to debug file
+          if (chunkHashes && chunkHashes.has(fileName)) {
+            // Use the hash calculated in renderChunk (final code after all transformations)
+            hash = chunkHashes.get(fileName)!;
             if (debug) {
-              writeDebugFile(
-                code,
-                `temp-original-${fileName.replace(/\//g, "-")}.js`
+              console.log(
+                `Using pre-calculated hash for ${fileName}: sha256-${hash.substring(0, 20)}...`,
               );
             }
-            if (requirements.strongLazyLoading) {
-              code = replaceVueRouterPreload(code, bundle);
-            } else {
-              code = replaceVitePreload(code);
-            }
+          } else {
+            // Fallback to old behavior (for dev mode or if renderChunk didn't run)
+            let code = currentFile.code;
 
+            if (code.includes("__VITE_PRELOAD__")) {
+              // Write original code to debug file
+              if (debug) {
+                writeDebugFile(
+                  code,
+                  `temp-original-${fileName.replace(/\//g, "-")}.js`,
+                );
+              }
+              if (requirements.strongLazyLoading) {
+                code = replaceVueRouterPreload(code, bundle);
+              } else {
+                code = replaceVitePreload(code);
+              }
+
+              if (debug) {
+                // Write transformed code to debug file
+                writeDebugFile(
+                  code,
+                  `temp-transformed-${fileName.replace(/\//g, "-")}.js`,
+                );
+              }
+            }
+            hash = generateHash(code, algorithm);
             if (debug) {
-              // Write transformed code to debug file
-              writeDebugFile(
-                code,
-                `temp-transformed-${fileName.replace(/\//g, "-")}.js`
+              console.log(
+                `Fallback hash calculation for ${fileName}: sha256-${hash.substring(0, 20)}...`,
               );
             }
           }
-          const hash = generateHash(code, algorithm);
-          if (!collection["script-src-elem"].has(hash)) {
+
+          if (!collection["script-src-elem"].has(`${algorithm}-${hash}`)) {
             addHash({
               hash,
               key: "script-src-elem",
               data: {
                 algorithm,
-                content: code,
+                content: "", // We don't store content when using pre-calculated hashes
               },
               collection: collection,
             });
-            if (fileName.includes("index")) {
-              bundleContext[fileName] = {
-                type: "chunk",
-                hash,
-              };
-            }
           }
+
+          // Store hash for SRI integrity attributes
+          bundleContext[fileName] = {
+            type: "chunk",
+            hash,
+          };
         }
       }
     }
@@ -198,7 +221,7 @@ export const transformIndexHtmlHandler = ({
       policy,
       context: pluginContext,
       bundleContext: bundle ? bundleContext : undefined,
-    }
+    },
   );
 
   const policyString = generatePolicyString({

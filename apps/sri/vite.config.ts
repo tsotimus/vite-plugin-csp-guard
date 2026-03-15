@@ -12,19 +12,14 @@ export default defineConfig({
         run: true,
       },
       policy: {
-        "font-src": ["https://fonts.gstatic.com"],
         "connect-src": ["*"],
         "object-src": ["'none'"],
       },
       build: {
         sri: {
-          // Enable runtime that patches DOM methods to add integrity to dynamically created elements
           runtimePatchDynamicLinks: true,
-          // Add modulepreload links with integrity for your lazy-loaded components
           preloadDynamicChunks: true,
-          // Skip resources matching these patterns (example - you can customize)
           skipResources: [],
-          // CORS setting for integrity attributes
           crossorigin: "anonymous",
         },
       },
@@ -32,9 +27,9 @@ export default defineConfig({
     }) as PluginOption,
   ],
   preview: {
-    port: 4000,
+    port: 4011,
   },
   server: {
-    port: 3000,
+    port: 3011,
   },
 });

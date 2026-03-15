@@ -32,12 +32,50 @@ export type DevOptions = {
   override?: boolean;
 };
 
+/**
+ * Enhanced SRI configuration options for comprehensive integrity protection.
+ */
+export type SriOptions = {
+  /**
+   * Inject runtime that patches DOM to add integrity to dynamic elements.
+   * When enabled, a small runtime is injected into entry chunks that automatically
+   * adds integrity attributes to dynamically created script and link elements.
+   * @default true
+   */
+  runtimePatchDynamicLinks?: boolean;
+  /**
+   * Add rel="modulepreload" with integrity for lazy-loaded chunks.
+   * Improves performance by preloading dynamic imports with integrity protection.
+   * @default true
+   */
+  preloadDynamicChunks?: boolean;
+  /**
+   * Skip SRI for resources matching these patterns. Supports exact matches and glob patterns with '*'.
+   * Useful for third-party scripts that change frequently.
+   * @example ["analytics-script", "https://www.googletagmanager.com/*", "*.googleapis.com/*"]
+   * @default []
+   */
+  skipResources?: string[];
+  /**
+   * CORS setting for integrity-enabled resources.
+   * @default undefined
+   */
+  crossorigin?: "anonymous" | "use-credentials";
+};
+
 export type BuildOptions = {
   /**
    * Indicates whether to use [SRI](https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity) at build time.
+   * Can be a boolean for simple enable/disable, or an object for advanced configuration.
+   *
+   * When enabled, the plugin will:
+   * - Generate integrity hashes for all scripts and stylesheets (including lazy-loaded chunks)
+   * - Inject modulepreload links with integrity for dynamic imports
+   * - Add a runtime that patches DOM methods to add integrity to dynamically created elements
+   *
    * @default false
    */
-  sri?: boolean;
+  sri?: boolean | SriOptions;
   /**
    * A list of outliers that require special treatment when doing a build
    * @default []
@@ -86,7 +124,7 @@ export type MyPluginOptions = {
   };
   /**
    * This is a flag to override the default policy. When set to false, the plugin will merge the default policy (provided by the plugin) with your policy. When set to true, the plugin will **only** use your policy.
-   * 
+   *
    * This serves as the default override behavior for both dev and build modes. You can override this on a per-environment basis using `dev.override` or `build.override`.
    * @default false
    */

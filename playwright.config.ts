@@ -242,6 +242,24 @@ const APPS = [
       /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
     ],
   },
+  {
+    url: "http://localhost:3011",
+    command: `pnpm sri:dev`,
+    testDir: "./apps/sri/tests",
+    name: "SRI - Dev",
+    testMatch: [
+      /^(?!.*\/preview-only\/).*\.spec\.ts$/, // Exclude any file inside the preview-only folder
+    ],
+  },
+  {
+    url: "http://localhost:4011",
+    command: `pnpm sri:preview`,
+    testDir: "./apps/sri/tests",
+    name: "SRI - Build",
+    testMatch: [
+      /^(?!.*\/dev-only\/).*\.spec\.ts$/, // Exclude any file inside the dev-only folder
+    ],
+  },
 ];
 
 /**
