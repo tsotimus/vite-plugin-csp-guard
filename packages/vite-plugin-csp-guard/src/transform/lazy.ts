@@ -1,4 +1,11 @@
-import { OutputBundle, OutputChunk } from "rollup";
+import type { OutputBundle, OutputChunk } from "rollup";
+import type { ChunkMetadata } from "vite";
+
+// Vite augments chunk output with `viteMetadata`. In Vite 7 the augmentation
+// targets rollup's `OutputChunk`; in Vite 8 the module hooks were redirected to
+// rolldown's types, so rollup's `OutputChunk` no longer picks it up. Intersect
+// with the vite-exported `ChunkMetadata` so the access typechecks under both.
+type ViteOutputChunk = OutputChunk & { viteMetadata?: ChunkMetadata };
 
 export const replaceVitePreload = (code: string) => {
   return code.replace(/__VITE_PRELOAD__/g, "[]");
@@ -25,7 +32,8 @@ export const generateViteDepMap = (bundle: OutputBundle) => {
   for (const importPath of indexChunk.dynamicImports) {
     // Find the corresponding chunk in the bundle
     const chunk = Object.values(bundle).find(
-      (c): c is OutputChunk => c.type === "chunk" && c.fileName === importPath
+      (c): c is ViteOutputChunk =>
+        c.type === "chunk" && c.fileName === importPath
     );
 
     if (!chunk) continue;

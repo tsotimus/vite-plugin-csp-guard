@@ -1,8 +1,8 @@
-import { IndexHtmlTransformContext, ViteDevServer } from "vite";
+import type { IndexHtmlTransformContext, ViteDevServer } from "vite";
+import type { OutputBundle, PluginContext } from "rollup";
 import { addHash, generateHash } from "../policy/core";
 import { BundleContext, TransformationStatus } from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
-import { PluginContext } from "rollup";
 import { generatePolicyString } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
 import { getCSS } from "../css/extraction";
@@ -154,7 +154,12 @@ export const transformIndexHtmlHandler = ({
               );
             }
             if (requirements.strongLazyLoading) {
-              code = replaceVueRouterPreload(code, bundle);
+              // Cast via `unknown`: Vite 8 types `bundle` as Rolldown's (narrower)
+              // OutputBundle; we only use chunk metadata that exists in both shapes.
+              code = replaceVueRouterPreload(
+                code,
+                bundle as unknown as OutputBundle
+              );
             } else {
               code = replaceVitePreload(code);
             }

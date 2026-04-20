@@ -5,7 +5,7 @@ import {
   HashCollection,
 } from "../types";
 import { addHash, generateHash, warnMissingPolicy } from "../policy/core";
-import { PluginContext } from "rollup";
+import type { PluginContext } from "rollup";
 import { extractAssetPath } from "../utils";
 import { CSPPolicy } from "csp-toolkit";
 

@@ -1,4 +1,4 @@
-import { ModuleInfo } from "rollup";
+import type { ModuleInfo } from "rollup";
 import { walk } from "estree-walker";
 import { type Program, Node } from "estree";
 

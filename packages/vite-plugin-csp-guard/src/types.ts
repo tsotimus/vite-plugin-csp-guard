@@ -1,5 +1,5 @@
 import { CSPKeys, CSPPolicy } from "csp-toolkit";
-import { PluginContext } from "rollup";
+import type { PluginContext } from "rollup";
 
 export type HashAlgorithms = "sha256" | "sha384" | "sha512";
 

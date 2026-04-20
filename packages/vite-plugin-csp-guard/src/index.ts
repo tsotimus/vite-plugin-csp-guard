@@ -1,5 +1,5 @@
 import { Plugin, ViteDevServer } from "vite";
-import { PluginContext } from "rollup";
+import type { ModuleInfo, PluginContext } from "rollup";
 import {
   CSPPluginContext,
   MyPluginOptions,
@@ -89,11 +89,14 @@ export default function vitePluginCSP(
     name: "vite-plugin-csp-guard",
     enforce: "post",
     buildStart() {
-      pluginContext = this;
+      // Cast via `unknown`: Vite 8 types `this` as Rolldown's (narrower) PluginContext,
+      // while Vite 7 types it as Rollup's. The plugin only uses the value as an opaque
+      // pass-through, so the cast is safe under both versions.
+      pluginContext = this as unknown as PluginContext;
       viteVersion = this.meta.viteVersion;
       if (!viteVersion) {
         throw new Error(
-          "Please ensure your using a minimum version of vite 7.0.0."
+          "Please ensure you're using a minimum version of vite 7.0.0."
         );
       }
     },
@@ -195,8 +198,12 @@ export default function vitePluginCSP(
       }
     },
     moduleParsed: (info) =>
-      // This handleModuleParsed function is not ready for production
-      features.cssInJs ? unstable_handleModuleParsed({ info }) : undefined,
+      // This handleModuleParsed function is not ready for production.
+      // Cast via `unknown`: Vite 8 types `info` as Rolldown's (narrower) ModuleInfo;
+      // only `info.id` and `info.ast` are consumed downstream, both present in both shapes.
+      features.cssInJs
+        ? unstable_handleModuleParsed({ info: info as unknown as ModuleInfo })
+        : undefined,
     configureServer(thisServer) {
       server = thisServer;
     },
