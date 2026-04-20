@@ -1,5 +1,5 @@
 import { CSPKeys, CSPPolicy } from "csp-toolkit";
-import { PluginContext } from "rollup";
+import type { Rolldown } from "vite";
 
 export type HashAlgorithms = "sha256" | "sha384" | "sha512";
 
@@ -121,7 +121,7 @@ export type WarnMissingPolicyProps = {
   source: string;
   currentPolicy: string[];
   sourceType?: CSPKeys;
-  context?: PluginContext;
+  context?: Rolldown.PluginContext;
 };
 
 export type OverrideCheckerProps = {

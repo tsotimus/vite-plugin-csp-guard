@@ -1,4 +1,4 @@
-import { ModuleInfo } from "rollup";
+import type { Rolldown } from "vite";
 import { walk } from "estree-walker";
 import { type Program, Node } from "estree";
 
@@ -10,7 +10,7 @@ import { type Program, Node } from "estree";
  */
 
 interface HandleModuleParsedProps {
-  info: ModuleInfo;
+  info: Rolldown.ModuleInfo;
 }
 export const unstable_handleModuleParsed = ({
   info,
