@@ -5,7 +5,7 @@ import {
   HashCollection,
 } from "../types";
 import { addHash, generateHash, warnMissingPolicy } from "../policy/core";
-import { PluginContext } from "rollup";
+import type { Rolldown } from "vite";
 import { extractAssetPath } from "../utils";
 import { CSPPolicy } from "csp-toolkit";
 
@@ -18,7 +18,7 @@ type handleIndexHtmlProps = {
   algorithm: HashAlgorithms;
   collection: HashCollection;
   policy: CSPPolicy;
-  context: PluginContext | undefined;
+  context: Rolldown.PluginContext | undefined;
   bundleContext?: BundleContext;
 };
 
