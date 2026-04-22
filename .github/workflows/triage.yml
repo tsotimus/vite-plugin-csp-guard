@@ -10,9 +10,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: github.event.pull_request.draft == false
+    env:
+      DEV_HERALD_KEY: ${{ secrets.DEV_HERALD_KEY }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: "23"
@@ -41,7 +44,7 @@ jobs:
         if: always()
         uses: dev-herald/comment@v1
         with:
-          api-key: ${{ secrets.DEV_HERALD_KEY }}
+          api-key: ${{ env.DEV_HERALD_KEY }}
           pr-number: ${{ github.event.pull_request.number }}
           sticky-id: test-results
           signal: "TEST_RESULTS"
