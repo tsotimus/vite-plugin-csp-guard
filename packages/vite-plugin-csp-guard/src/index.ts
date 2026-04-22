@@ -1,5 +1,4 @@
-import { Plugin, ViteDevServer } from "vite";
-import { PluginContext } from "rollup";
+import { Plugin, Rolldown, ViteDevServer } from "vite";
 import {
   CSPPluginContext,
   MyPluginOptions,
@@ -36,7 +35,7 @@ export default function vitePluginCSP(
     debug = false,
   } = options;
 
-  let pluginContext: PluginContext | undefined = undefined; //Needed for logging
+  let pluginContext: Rolldown.PluginContext | undefined = undefined; //Needed for logging
   let isDevMode = false; // This is a flag to check if we are in dev mode
   let server: ViteDevServer | undefined = undefined;
   let viteVersion: string | undefined = undefined;
@@ -93,7 +92,7 @@ export default function vitePluginCSP(
       viteVersion = this.meta.viteVersion;
       if (!viteVersion) {
         throw new Error(
-          "Please ensure your using a minimum version of vite 7.0.0."
+          "Please ensure you're using a minimum version of vite 8.0.0."
         );
       }
     },
