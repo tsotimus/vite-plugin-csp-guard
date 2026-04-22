@@ -170,6 +170,9 @@ export const transformIndexHtmlHandler = ({
               );
             }
           }
+          // Keep emitted chunk bytes aligned with the hash/integrity we compute.
+          // Otherwise SRI uses hash(transformed) while dist still contains the original file → script blocked.
+          currentFile.code = code;
           const hash = generateHash(code, algorithm);
           if (!collection["script-src-elem"].has(hash)) {
             addHash({
