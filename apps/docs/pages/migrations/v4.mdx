@@ -1,10 +1,51 @@
 # Upgrade to V4
 
-## Key changes:
+## Key changes
 
 - Support for Vite 8
 - Drops support for Vite 7
+- The plugin now depends on **csp-toolkit 1.5+**. You can keep passing a plain `policy` object with kebab-case directive keys and string sources, or you can use **`definePolicy`** (recommended) for camelCase keys, keyword helpers, and stricter types. For the full toolkit API, see the **[CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk)**.
 
 ## Required changes
 
-None.
+To upgrade the **build tooling** only, bump `vite` to 8 and `vite-plugin-csp-guard` to 4. No CSP policy rewrites are required if you are happy with your existing `policy` object.
+
+## Optional: the new `definePolicy` API
+
+[csp-toolkit 1.5](https://www.npmjs.com/package/csp-toolkit) adds `definePolicy`, `mergePolicies`, and small helpers like `self`, `unsafeInline`, and scheme tokens (`data`, `blob`, etc.). The plugin’s `policy` option accepts either a legacy [`CSPPolicy`](https://www.npmjs.com/package/csp-toolkit) object or the result of `definePolicy()` (a `DefinedPolicy` with the same wire-format directives plus a `.toString()` helper). See the **[CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk)** for patterns, types, and Node/edge helpers.
+
+**Before** (still supported):
+
+```ts
+csp({
+  policy: {
+    "script-src": ["'self'", "https://www.google-analytics.com"],
+    "font-src": ["'self'", "https://fonts.gstatic.com"],
+  },
+})
+```
+
+**After** (recommended for new and refactored code):
+
+```ts
+import { definePolicy, self } from "csp-toolkit"
+import csp from "vite-plugin-csp-guard"
+
+csp({
+  policy: definePolicy({
+    scriptSrc: [self, "https://www.google-analytics.com"],
+    fontSrc: [self, "https://fonts.gstatic.com"],
+  }),
+})
+```
+
+`csp-toolkit` is a **dependency** of `vite-plugin-csp-guard` (it is not inlined into the plugin’s published build; the plugin loads it from `node_modules` at runtime). If you **import** from `csp-toolkit` in your own Vite config or app code, you should add `csp-toolkit` as a **direct dependency** of your project (usually a **devDependency**, since the policy is built at build time). **pnpm in particular** only reliably exposes packages you declare yourself—nested installs from the plugin are not a stable way to resolve `import "csp-toolkit"`. For npm and Yarn, adding it explicitly is still recommended so the version is clear and you avoid surprise resolution changes.
+
+```bash
+pnpm add -D csp-toolkit
+# or: npm install -D csp-toolkit   /  yarn add -D csp-toolkit
+```
+
+If you do **not** import `csp-toolkit` anywhere and only pass a plain `policy` object, you do not need to add the package.
+
+See [Creating your policy](/guides/policy), the [API examples](/api-docs#example), and the **[CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk)** for more patterns.

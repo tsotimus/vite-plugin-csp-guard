@@ -1,5 +1,6 @@
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { definePolicy, none } from "csp-toolkit";
 import csp from "vite-plugin-csp-guard";
 
 // https://vitejs.dev/config/
@@ -11,10 +12,10 @@ export default defineConfig({
       dev: {
         run: true,
       },
-      policy: {
-        "connect-src": ["*"],
-        "object-src": ["'none'"],
-      },
+      policy: definePolicy({
+        connectSrc: ["*"],
+        objectSrc: [none],
+      }),
       build: {
         sri: {
           runtimePatchDynamicLinks: true,

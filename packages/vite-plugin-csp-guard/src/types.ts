@@ -1,4 +1,4 @@
-import { CSPKeys, CSPPolicy } from "csp-toolkit";
+import { CSPKeys, type CSPPolicy, type DefinedPolicy } from "csp-toolkit";
 import type { Rolldown } from "vite";
 
 export type HashAlgorithms = "sha256" | "sha384" | "sha512";
@@ -100,7 +100,7 @@ export type MyPluginOptions = {
    * This is your CSP policy. Learn more about CSP [here](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP)
    * Enter as a key-value pair. The key is the directive and the value is an array of sources.
    */
-  policy?: CSPPolicy;
+  policy?: CSPPolicy | DefinedPolicy;
   /**
    * This is a flag for the plugin to know what type of app you are building. Default is SPA. This is the only option available for now.
    * @default "SPA"
@@ -177,7 +177,7 @@ export type WarnMissingPolicyProps = {
 };
 
 export type OverrideCheckerProps = {
-  userPolicy: CSPPolicy | undefined;
+  userPolicy: CSPPolicy | DefinedPolicy | undefined;
   override: boolean;
 };
 
@@ -201,7 +201,7 @@ export type CSPPluginContext = {
   options: MyPluginOptions;
   algorithm: HashAlgorithms;
   collection: HashCollection;
-  policy: CSPPolicy;
+  policy: CSPPolicy | DefinedPolicy;
   requirements: {
     postTransform: boolean;
     strongLazyLoading: boolean;

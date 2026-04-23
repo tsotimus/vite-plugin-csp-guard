@@ -1,5 +1,6 @@
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { definePolicy, none } from "csp-toolkit";
 import csp from "vite-plugin-csp-guard";
 
 // https://vitejs.dev/config/
@@ -11,11 +12,11 @@ export default defineConfig({
       dev: {
         run: true,
       },
-      policy: {
-        "font-src": ["https://fonts.gstatic.com"],
-        "connect-src": ["*"],
-        "object-src": ["'none'"],
-      },
+      policy: definePolicy({
+        fontSrc: ["https://fonts.gstatic.com"],
+        connectSrc: ["*"],
+        objectSrc: [none],
+      }),
       build: {
         sri: {
           // Enable runtime that patches DOM methods to add integrity to dynamically created elements
