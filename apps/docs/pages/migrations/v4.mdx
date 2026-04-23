@@ -39,6 +39,13 @@ csp({
 })
 ```
 
-`csp-toolkit` is a **dependency** of `vite-plugin-csp-guard` (it is not inlined into the plugin’s published build; the plugin loads it from `node_modules` at runtime). You usually get a copy automatically when you install the plugin, so a direct `import` of `definePolicy` from `csp-toolkit` in your Vite config can work without adding it to your app’s `package.json`. If you want to pin or document the version you rely on, add `csp-toolkit` as a direct dependency and align the range with the plugin.
+`csp-toolkit` is a **dependency** of `vite-plugin-csp-guard` (it is not inlined into the plugin’s published build; the plugin loads it from `node_modules` at runtime). If you **import** from `csp-toolkit` in your own Vite config or app code, you should add `csp-toolkit` as a **direct dependency** of your project (usually a **devDependency**, since the policy is built at build time). **pnpm in particular** only reliably exposes packages you declare yourself—nested installs from the plugin are not a stable way to resolve `import "csp-toolkit"`. For npm and Yarn, adding it explicitly is still recommended so the version is clear and you avoid surprise resolution changes.
+
+```bash
+pnpm add -D csp-toolkit
+# or: npm install -D csp-toolkit   /  yarn add -D csp-toolkit
+```
+
+If you do **not** import `csp-toolkit` anywhere and only pass a plain `policy` object, you do not need to add the package.
 
 See [Creating your policy](/guides/policy) and the [API examples](/api-docs#example) for more patterns.

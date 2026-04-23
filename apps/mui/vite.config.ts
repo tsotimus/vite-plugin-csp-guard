@@ -1,5 +1,6 @@
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { definePolicy, self, unsafeInline } from "csp-toolkit";
 import csp from "vite-plugin-csp-guard";
 
 // https://vitejs.dev/config/
@@ -11,14 +12,10 @@ export default defineConfig({
       dev: {
         run: true,
       },
-      policy: {
-        "style-src-elem": [
-          "'self'",
-          "https://fonts.googleapis.com",
-          "'unsafe-inline'",
-        ],
-        "font-src": ["'self'", "https://fonts.gstatic.com"],
-      },
+      policy: definePolicy({
+        styleSrcElem: [self, "https://fonts.googleapis.com", unsafeInline],
+        fontSrc: [self, "https://fonts.gstatic.com"],
+      }),
       build: {
         sri: true,
       },
