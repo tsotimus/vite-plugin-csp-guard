@@ -47,6 +47,7 @@ pnpm add -D vite-plugin-csp-guard
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import csp from "vite-plugin-csp-guard";
+import { definePolicy, self } from "csp-toolkit";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -55,11 +56,11 @@ export default defineConfig({
     csp({
       dev: {
         run: true,  // Run the plugin in dev mode
-      },   
-      policy: {
-        "script-src": ["'self'", "https://www.google-analytics.com"],    //Allow google analytics to run
-        "font-src": ["'self'", "https://fonts.gstatic.com"],    //Allows fonts from Google to load
       },
+      policy: definePolicy({
+        scriptSrc: [self, "https://www.google-analytics.com"],    //Allow google analytics to run
+        fontSrc: [self, "https://fonts.gstatic.com"],    //Allows fonts from Google to load
+      }),
       build:{
         sri: true
       }

@@ -1,15 +1,15 @@
-import { CSPPolicy } from "csp-toolkit";
+import { data, definePolicy, self, type DefinedPolicy } from "csp-toolkit";
 
-export const DEFAULT_DEV_POLICY: CSPPolicy = {
-  "default-src": ["'self'"],
-  "img-src": ["'self'", "data:"],
-  "script-src-elem": ["'self'"],
-  "style-src-elem": ["'self'"],
-};
+export const DEFAULT_DEV_POLICY: DefinedPolicy = definePolicy({
+  defaultSrc: [self],
+  imgSrc: [self, data],
+  scriptSrcElem: [self],
+  styleSrcElem: [self],
+});
 
-export const DEFAULT_POLICY: CSPPolicy = {
-  "default-src": ["'self'"],
-  "img-src": ["'self'"],
-  "script-src-elem": ["'self'"],
-  "style-src-elem": ["'self'"],
-};
+export const DEFAULT_POLICY: DefinedPolicy = definePolicy({
+  defaultSrc: [self],
+  imgSrc: [self],
+  scriptSrcElem: [self],
+  styleSrcElem: [self],
+});

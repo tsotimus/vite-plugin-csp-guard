@@ -12,6 +12,7 @@ This is the API documentation for this plugin. Here you will find all the option
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import csp from "vite-plugin-csp-guard";
+import { definePolicy, self, unsafeInline } from "csp-toolkit";
 
 export default defineConfig({
   plugins: [
@@ -21,15 +22,15 @@ export default defineConfig({
       dev: {
         run: true, // Run in development mode
       },
-      policy: {
-        "script-src": ["'self'", "https://www.google-analytics.com"],
-        "style-src-elem": [
-          "'self'",
+      policy: definePolicy({
+        scriptSrc: [self, "https://www.google-analytics.com"],
+        styleSrcElem: [
+          self,
           "https://fonts.googleapis.com",
-          "'unsafe-inline'",
+          unsafeInline,
         ],
-        "font-src": ["'self'", "https://fonts.gstatic.com"],
-      },
+        fontSrc: [self, "https://fonts.gstatic.com"],
+      }),
     }),
   ],
 });
@@ -41,6 +42,7 @@ export default defineConfig({
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import csp from "vite-plugin-csp-guard";
+import { definePolicy, self } from "csp-toolkit";
 
 export default defineConfig({
   plugins: [
@@ -55,11 +57,11 @@ export default defineConfig({
         sri: true,
         override: true, // Use only custom policy in production for strict control
       },
-      policy: {
-        "script-src": ["'self'", "https://www.google-analytics.com"],
-        "style-src-elem": ["'self'", "https://fonts.googleapis.com"],
-        "font-src": ["'self'", "https://fonts.gstatic.com"],
-      },
+      policy: definePolicy({
+        scriptSrc: [self, "https://www.google-analytics.com"],
+        styleSrcElem: [self, "https://fonts.googleapis.com"],
+        fontSrc: [self, "https://fonts.gstatic.com"],
+      }),
     }),
   ],
 });
@@ -142,15 +144,33 @@ export default defineConfig({
 
 ### policy
 
-- Type: `object`
+- Type: `CSPPolicy` | `DefinedPolicy` (from [csp-toolkit](https://www.npmjs.com/package/csp-toolkit))
 - Default: `{}`
-- Description: The CSP policy to use. This is an object where the key is the CSP directive and the value is an array of strings that are allowed.
+- Description: The CSP to apply. **Recommended:** build it with **`definePolicy()`** from `csp-toolkit` (camelCase directive keys, keyword helpers like `self` and `unsafeInline`). You can also pass a plain object with **kebab-case** directive keys and string sources, as before.
 
 #### policy properties
 
-The key is the CSP directive and the value is an array of strings that are allowed.
+With **`definePolicy`**, use camelCase keys (`scriptSrc`, `styleSrcElem`, etc.) and an array of sources per directive. With a **plain** object, the key is the directive name in kebab-case and the value is an array of string sources.
 All [official CSP directives](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy#directives) should be supported. If you find one that is not, please open an issue on the repo.
-You can read our guide for creating a policy [here](/guides/policy)
+See [Creating your policy](/guides/policy) and [Upgrade to V4 — definePolicy](/migrations/v4#optional-the-new-definepolicy-api).
+
+**Using `definePolicy` (recommended):**
+
+```ts
+import { definePolicy, self, unsafeInline } from "csp-toolkit"
+
+definePolicy({
+    scriptSrc: [self, "https://www.google-analytics.com"],
+    styleSrcElem: [
+        self,
+        "https://fonts.googleapis.com",
+        unsafeInline,
+    ],
+    fontSrc: [self, "https://fonts.gstatic.com"],
+})
+```
+
+**Plain object (still supported):**
 
 ```ts
 {

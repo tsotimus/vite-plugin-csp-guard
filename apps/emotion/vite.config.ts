@@ -1,5 +1,6 @@
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
+import { definePolicy, self, unsafeInline } from "csp-toolkit";
 import csp from "vite-plugin-csp-guard";
 
 // https://vitejs.dev/config/
@@ -11,9 +12,9 @@ export default defineConfig({
       dev: {
         run: true,
       },
-      policy: {
-        "style-src-elem": ["'self'", "'unsafe-inline'"],
-      },
+      policy: definePolicy({
+        styleSrcElem: [self, unsafeInline],
+      }),
       build: {
         sri: true,
       },
