@@ -9,7 +9,8 @@ import {
 } from "../types";
 import crypto from "crypto";
 import { isExternalSource, isSourceInPolicy } from "../utils";
-import { CSPPolicy } from "csp-toolkit";
+import { type CSPPolicy, type DefinedPolicy } from "csp-toolkit";
+import { policyHasUnsafeEval, policyHasUnsafeInline } from "./keywordForm";
 
 /**
  * Used for hash data storage
@@ -91,7 +92,9 @@ export const warnMissingPolicy = ({
   }
 };
 
-export const calculateSkip = (policy: CSPPolicy | undefined): ShouldSkip => {
+export const calculateSkip = (
+  policy: (CSPPolicy | DefinedPolicy) | undefined,
+): ShouldSkip => {
   const defaultShouldSkip = {
     "script-src": false,
     "script-src-attr": false,
@@ -105,10 +108,8 @@ export const calculateSkip = (policy: CSPPolicy | undefined): ShouldSkip => {
   const keysToCheck = Object.keys(defaultShouldSkip) as (keyof ShouldSkip)[];
 
   keysToCheck.forEach((key) => {
-    if (
-      policy[key]?.includes("'unsafe-inline'") ||
-      policy[key]?.includes("'unsafe-eval'")
-    ) {
+    const sources = policy[key];
+    if (policyHasUnsafeInline(sources) || policyHasUnsafeEval(sources)) {
       defaultShouldSkip[key] = true;
     }
   });

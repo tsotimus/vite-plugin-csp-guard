@@ -1,7 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { CSPPolicy } from "csp-toolkit";
+import { definePolicy, self, unsafeEval, type DefinedPolicy } from "csp-toolkit";
 import { generatePolicyString } from "../src/policy/createPolicy";
 import { createNewCollection } from "../src/policy/core";
+import { cspKeywordForm } from "../src/policy/keywordForm";
 
 /**
  * Serialised policies from csp-toolkit are `directive value; ...` with
@@ -25,15 +26,11 @@ describe("generatePolicyString — elem directive inheritance from parent", () =
       content: "",
     });
 
-    const policy: CSPPolicy = {
-      "default-src": ["'self'"],
-      "script-src-elem": ["'self'"],
-      "script-src": [
-        "'self'",
-        "https://js.stripe.com",
-        "https://js.sentry-cdn.com",
-      ],
-    };
+    const policy: DefinedPolicy = definePolicy({
+      defaultSrc: [self],
+      scriptSrcElem: [self],
+      scriptSrc: [self, "https://js.stripe.com", "https://js.sentry-cdn.com"],
+    });
 
     const out = generatePolicyString({ collection, policy });
     const src = directiveSources(out, "script-src-elem");
@@ -48,15 +45,11 @@ describe("generatePolicyString — elem directive inheritance from parent", () =
       content: "",
     });
 
-    const policy: CSPPolicy = {
-      "default-src": ["'self'"],
-      "style-src-elem": ["'self'"],
-      "style-src": [
-        "'self'",
-        "https://fonts.googleapis.com",
-        "https://example.com",
-      ],
-    };
+    const policy: DefinedPolicy = definePolicy({
+      defaultSrc: [self],
+      styleSrcElem: [self],
+      styleSrc: [self, "https://fonts.googleapis.com", "https://example.com"],
+    });
 
     const out = generatePolicyString({ collection, policy });
     const src = directiveSources(out, "style-src-elem");
@@ -71,16 +64,16 @@ describe("generatePolicyString — elem directive inheritance from parent", () =
       content: "",
     });
 
-    const policy: CSPPolicy = {
-      "default-src": ["'self'"],
-      "script-src-elem": ["'self'"],
-      "script-src": ["'self'", "'unsafe-eval'", "https://allowed.example.test"],
-    };
+    const policy: DefinedPolicy = definePolicy({
+      defaultSrc: [self],
+      scriptSrcElem: [self],
+      scriptSrc: [self, unsafeEval, "https://allowed.example.test"],
+    });
 
     const out = generatePolicyString({ collection, policy });
     const src = directiveSources(out, "script-src-elem");
     expect(src).toContain("https://allowed.example.test");
-    expect(src).not.toContain("'unsafe-eval'");
+    expect(src).not.toContain(cspKeywordForm(unsafeEval));
   });
 
   test("does not duplicate a source already on script-src-elem", () => {
@@ -91,11 +84,11 @@ describe("generatePolicyString — elem directive inheritance from parent", () =
       content: "",
     });
 
-    const policy: CSPPolicy = {
-      "default-src": ["'self'"],
-      "script-src-elem": ["'self'", url],
-      "script-src": ["'self'", url],
-    };
+    const policy: DefinedPolicy = definePolicy({
+      defaultSrc: [self],
+      scriptSrcElem: [self, url],
+      scriptSrc: [self, url],
+    });
 
     const out = generatePolicyString({ collection, policy });
     const count = directiveSources(out, "script-src-elem").filter((s) => s === url)
@@ -107,15 +100,15 @@ describe("generatePolicyString — elem directive inheritance from parent", () =
     const collection = createNewCollection();
     expect(collection["script-src-elem"].size).toBe(0);
 
-    const policy: CSPPolicy = {
-      "default-src": ["'self'"],
-      "script-src-elem": ["'self'"],
-      "script-src": ["'self'", "https://not-inherited.example.test"],
-    };
+    const policy: DefinedPolicy = definePolicy({
+      defaultSrc: [self],
+      scriptSrcElem: [self],
+      scriptSrc: [self, "https://not-inherited.example.test"],
+    });
 
     const out = generatePolicyString({ collection, policy });
     const src = directiveSources(out, "script-src-elem");
-    expect(src).toEqual(["'self'"]);
+    expect(src).toEqual([cspKeywordForm(self)]);
     expect(src).not.toContain("https://not-inherited.example.test");
   });
 });

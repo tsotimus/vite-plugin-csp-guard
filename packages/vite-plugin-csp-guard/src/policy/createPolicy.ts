@@ -1,17 +1,15 @@
 import { HtmlTagDescriptor } from "vite";
 import { HashCollection } from "../types";
-import { policyToString, CSPPolicy } from "csp-toolkit";
+import { policyToString, type CSPPolicy, type DefinedPolicy } from "csp-toolkit";
+import { cspSkipElemInherit, policyHasUnsafeInline } from "./keywordForm";
 
 const ELEM_PARENT_MAP = {
   "script-src-elem": "script-src",
   "style-src-elem": "style-src",
 } as const;
 
-/** Keywords that must not be copied from parent script-src / style-src into -elem directives. */
-const SKIP_WHEN_INHERITING = new Set(["'unsafe-eval'"]);
-
 type GeneratePolicyProps = {
-  policy: CSPPolicy;
+  policy: CSPPolicy | DefinedPolicy;
   collection: HashCollection;
 };
 export const generatePolicyString = ({
@@ -25,7 +23,7 @@ export const generatePolicyString = ({
     const currentMap = value;
     const currentPolicy = finalPolicy[key as keyof CSPPolicy] ?? [];
 
-    if (currentPolicy.includes("'unsafe-inline'")) {
+    if (policyHasUnsafeInline(currentPolicy)) {
       // If we have unsafe-inline, we should not add any hashes because this will override the unsafe-inline
       continue;
     }
@@ -35,7 +33,7 @@ export const generatePolicyString = ({
         ELEM_PARENT_MAP[key as keyof typeof ELEM_PARENT_MAP];
       const parentSources = parentKey ? (finalPolicy[parentKey] ?? []) : [];
       const inheritedSources = parentSources.filter(
-        (s) => !SKIP_WHEN_INHERITING.has(s) && !currentPolicy.includes(s),
+        (s) => !cspSkipElemInherit.has(s) && !currentPolicy.includes(s),
       );
 
       finalPolicy[key as keyof CSPPolicy] = [
