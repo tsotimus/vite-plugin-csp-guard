@@ -4,7 +4,7 @@
 
 - Support for Vite 8
 - Drops support for Vite 7
-- The plugin now depends on **csp-toolkit 1.5+**. You can keep passing a plain `policy` object with kebab-case directive keys and string sources, or you can use **`definePolicy`** (recommended) for camelCase keys, keyword helpers, and stricter types.
+- The plugin now depends on **csp-toolkit 1.5+**. You can keep passing a plain `policy` object with kebab-case directive keys and string sources, or you can use **`definePolicy`** (recommended) for camelCase keys, keyword helpers, and stricter types. For the full toolkit API, see the **[CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk)**.
 
 ## Required changes
 
@@ -12,7 +12,7 @@ To upgrade the **build tooling** only, bump `vite` to 8 and `vite-plugin-csp-gua
 
 ## Optional: the new `definePolicy` API
 
-[csp-toolkit 1.5](https://www.npmjs.com/package/csp-toolkit) adds `definePolicy`, `mergePolicies`, and small helpers like `self`, `unsafeInline`, and scheme tokens (`data`, `blob`, etc.). The plugin’s `policy` option accepts either a legacy [`CSPPolicy`](https://www.npmjs.com/package/csp-toolkit) object or the result of `definePolicy()` (a `DefinedPolicy` with the same wire-format directives plus a `.toString()` helper).
+[csp-toolkit 1.5](https://www.npmjs.com/package/csp-toolkit) adds `definePolicy`, `mergePolicies`, and small helpers like `self`, `unsafeInline`, and scheme tokens (`data`, `blob`, etc.). The plugin’s `policy` option accepts either a legacy [`CSPPolicy`](https://www.npmjs.com/package/csp-toolkit) object or the result of `definePolicy()` (a `DefinedPolicy` with the same wire-format directives plus a `.toString()` helper). See the **[CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk)** for patterns, types, and Node/edge helpers.
 
 **Before** (still supported):
 
@@ -48,4 +48,4 @@ pnpm add -D csp-toolkit
 
 If you do **not** import `csp-toolkit` anywhere and only pass a plain `policy` object, you do not need to add the package.
 
-See [Creating your policy](/guides/policy) and the [API examples](/api-docs#example) for more patterns.
+See [Creating your policy](/guides/policy), the [API examples](/api-docs#example), and the **[CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk)** for more patterns.

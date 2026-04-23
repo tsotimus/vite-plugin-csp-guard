@@ -12,5 +12,5 @@ Examples of MPA frameworks include Nuxt, Remix, and others.
 The **Vite Plugin CSP Guard** package currently does not support Multi-Page Applications (MPAs). Unfortunately, this limitation is unlikely to change due to the inherent differences between how MPAs operate in Vite.
 
 ### The Good News
-You should be able to use the **CSP Toolkit** to generate a nonce & a CSP policy. Check out the [CSP Toolkit documentation](https://csp-toolkit.tsotne.co.uk) for more information. It has framework specific examples for popular frameworks.
+For MPAs you will often run CSP on the **server** (e.g. per-request nonces). Use **[CSP Toolkit](https://csp-toolkit.tsotne.co.uk)** for nonce generation, `definePolicy`, `mergePolicies`, and Node/edge helpers. The **documentation** on that site also includes framework-specific examples for popular stacks.
 
