@@ -346,7 +346,7 @@ importers:
         version: 2.17.0(typescript@5.9.2)
       '@tailwindcss/vite':
         specifier: ^4.0.9
-        version: 4.1.12(vite@8.0.9(@types/node@24.3.0)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1))
+        version: 4.1.12(vite@8.0.9(@types/node@24.3.0)(esbuild@0.17.6)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1))
       isbot:
         specifier: ^4.1.0
         version: 4.4.0
@@ -685,7 +685,7 @@ importers:
         version: link:../../packages/eslint-config
       '@tailwindcss/vite':
         specifier: ^4.0.9
-        version: 4.1.12(vite@8.0.9(@types/node@24.3.0)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1))
+        version: 4.1.12(vite@8.0.9(@types/node@24.3.0)(esbuild@0.17.6)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1))
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -849,7 +849,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       csp-toolkit:
-        specifier: 'catalog:'
+        specifier: ^1.5.0
         version: 1.5.0
     devDependencies:
       '@repo/eslint-config':
@@ -889,7 +889,7 @@ importers:
         specifier: ^4.47.1
         version: 4.47.1
       vite:
-        specifier: 'catalog:'
+        specifier: ^8.0.1
         version: 8.0.9(@types/node@24.3.0)(esbuild@0.17.6)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1)
       vitest:
         specifier: ^1.6.0
@@ -10112,7 +10112,7 @@ snapshots:
       '@tailwindcss/oxide-win32-arm64-msvc': 4.1.12
       '@tailwindcss/oxide-win32-x64-msvc': 4.1.12
 
-  '@tailwindcss/vite@4.1.12(vite@8.0.9(@types/node@24.3.0)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1))':
+  '@tailwindcss/vite@4.1.12(vite@8.0.9(@types/node@24.3.0)(esbuild@0.17.6)(jiti@2.5.1)(less@4.4.1)(sass@1.90.0)(stylus@0.64.0)(terser@5.37.0)(yaml@2.8.1))':
     dependencies:
       '@tailwindcss/node': 4.1.12
       '@tailwindcss/oxide': 4.1.12
