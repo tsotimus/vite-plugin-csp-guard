@@ -46,6 +46,7 @@ export default function vitePluginCSP(
     build = {},
     override = false,
     debug = false,
+    transformPolicy,
   } = options;
 
   let pluginContext: Rolldown.PluginContext | undefined = undefined; //Needed for logging
@@ -109,6 +110,7 @@ export default function vitePluginCSP(
       build,
       override,
       debug,
+      transformPolicy,
     },
     algorithm,
     collection: CORE_COLLECTION,
@@ -165,6 +167,8 @@ export default function vitePluginCSP(
       if (config.build.ssr && !features.mpa) {
         throw new Error("Vite CSP Plugin does not work with SSR apps");
       }
+
+      cspContext.isDevMode = isDevMode;
     },
     load(id) {
       if (!isDevAndAllowed()) return null; // Exit early if we are not in dev mode or if we are in dev mode but the user does not want to run in dev mode
@@ -369,6 +373,7 @@ export default function vitePluginCSP(
           cspContext,
           sri: sriConfig.enabled,
           chunkHashes,
+          transformPolicy,
         });
       },
     },

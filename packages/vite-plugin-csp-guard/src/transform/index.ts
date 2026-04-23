@@ -4,7 +4,13 @@ import type {
   ViteDevServer,
 } from "vite";
 import { addHash, generateHash } from "../policy/core";
-import { BundleContext, TransformationStatus } from "../types";
+import {
+  type BundleContext,
+  type CSPPluginContext,
+  type MyPluginOptions,
+  TransformationStatus,
+  type TransformPolicyMeta,
+} from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
 import { generatePolicyString } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
@@ -12,7 +18,6 @@ import { getCSS } from "../css/extraction";
 import { replaceVitePreload, replaceVueRouterPreload } from "./lazy";
 import * as fs from "fs";
 import * as path from "path";
-import { CSPPluginContext } from "../types";
 
 // Debug function to write code to a file
 const writeDebugFile = (code: string, fileName: string) => {
@@ -121,6 +126,7 @@ export interface TransformIndexHtmlHandlerProps {
   cspContext: CSPPluginContext;
   sri: boolean;
   chunkHashes?: Map<string, string>;
+  transformPolicy?: MyPluginOptions["transformPolicy"];
 }
 
 export const transformIndexHtmlHandler = ({
@@ -131,6 +137,7 @@ export const transformIndexHtmlHandler = ({
   cspContext,
   sri,
   chunkHashes,
+  transformPolicy,
 }: TransformIndexHtmlHandlerProps) => {
   const { algorithm, policy, collection, shouldSkip, debug, requirements } =
     cspContext;
@@ -229,12 +236,25 @@ export const transformIndexHtmlHandler = ({
     },
   );
 
-  const policyString = generatePolicyString({
+  const rawPolicy = generatePolicyString({
     collection: updatedCollection,
     policy: policy,
   });
 
-  const changedHtml = handleCSPInsert(newHtml, policyString);
+  let effectivePolicyString: string | null = rawPolicy;
+  if (transformPolicy) {
+    const meta: TransformPolicyMeta = {
+      command: cspContext.isDevMode ? "serve" : "build",
+      algorithm: cspContext.algorithm,
+    };
+    const result = transformPolicy(rawPolicy, meta);
+    effectivePolicyString = result === undefined ? rawPolicy : result;
+  }
+
+  const changedHtml =
+    effectivePolicyString != null
+      ? handleCSPInsert(newHtml, effectivePolicyString)
+      : newHtml;
   return {
     html: changedHtml,
     tags: [],

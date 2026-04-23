@@ -109,6 +109,12 @@ We are actively working to find a solution to this [issue](https://github.com/ts
 There are risks to using `'unsafe-inline'` for your styles. However, most of these could potentially be mitigated by the rest of the CSP. [Read more about this here](https://scotthelme.co.uk/can-you-get-pwned-with-css/)
 </Callout>
 
+## HTTP headers vs. `<meta>` (v4+)
+
+The plugin injects a `<meta http-equiv="Content-Security-Policy">` by default. Many teams prefer to send the policy as an **HTTP response header** (for `report-uri` / `report-to`, `frame-ancestors`, and to avoid duplicating large policies in HTML).
+
+In **v4**, the optional `transformPolicy` callback receives the final built CSP string and can return `null` to skip meta injection while you copy the string into your host’s config. See the [`transformPolicy` option](/api-docs#transformpolicy) in the API docs.
+
 ## Creating your policy
 Need some help building your CSP policy? 
 Check out our [guide](/guides/policy) for creating a custom policy
