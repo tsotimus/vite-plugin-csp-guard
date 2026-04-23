@@ -6,5 +6,9 @@
     "v3": {
         "title": "V3",
         "href": "/migrations/v3"
+    },
+    "v4": {
+        "title": "V4",
+        "href": "/migrations/v4"
     }
 }

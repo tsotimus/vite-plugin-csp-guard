@@ -1,8 +1,11 @@
-import { IndexHtmlTransformContext, ViteDevServer } from "vite";
+import type {
+  IndexHtmlTransformContext,
+  Rolldown,
+  ViteDevServer,
+} from "vite";
 import { addHash, generateHash } from "../policy/core";
 import { BundleContext, TransformationStatus } from "../types";
 import { handleCSPInsert, handleIndexHtml } from "./handleIndexHtml";
-import { PluginContext } from "rollup";
 import { generatePolicyString } from "../policy/createPolicy";
 import { cssFilter, jsFilter, preCssFilter, tsFilter } from "../utils";
 import { getCSS } from "../css/extraction";
@@ -113,7 +116,7 @@ export const transformHandler = async ({
 export interface TransformIndexHtmlHandlerProps {
   html: string;
   context: IndexHtmlTransformContext;
-  pluginContext: PluginContext | undefined;
+  pluginContext: Rolldown.PluginContext | undefined;
   isTransformationStatusEmpty: boolean;
   cspContext: CSPPluginContext;
   sri: boolean;
@@ -183,6 +186,8 @@ export const transformIndexHtmlHandler = ({
                 );
               }
             }
+            // Keep emitted chunk bytes aligned with the hash/integrity we compute.
+            currentFile.code = code;
             hash = generateHash(code, algorithm);
             if (debug) {
               console.log(

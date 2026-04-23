@@ -1,5 +1,9 @@
-import { Plugin, ViteDevServer, ResolvedConfig } from "vite";
-import { PluginContext, OutputBundle } from "rollup";
+import {
+  Plugin,
+  Rolldown,
+  ViteDevServer,
+  type ResolvedConfig,
+} from "vite";
 import {
   CSPPluginContext,
   MyPluginOptions,
@@ -29,6 +33,7 @@ import {
   processHtmlForSri,
   installSriRuntime,
 } from "./sri";
+import type { OutputBundle as RollupOutputBundle } from "rollup";
 
 export default function vitePluginCSP(
   options: MyPluginOptions | undefined = {},
@@ -43,7 +48,7 @@ export default function vitePluginCSP(
     debug = false,
   } = options;
 
-  let pluginContext: PluginContext | undefined = undefined; //Needed for logging
+  let pluginContext: Rolldown.PluginContext | undefined = undefined; //Needed for logging
   let isDevMode = false; // This is a flag to check if we are in dev mode
   let server: ViteDevServer | undefined = undefined;
   let viteVersion: string | undefined = undefined;
@@ -61,8 +66,12 @@ export default function vitePluginCSP(
   const isSriObject = typeof sri === "object" && sri !== null;
   const sriConfig = {
     enabled: sriEnabled,
-    runtimePatchDynamicLinks: isSriObject ? (sri.runtimePatchDynamicLinks ?? true) : true,
-    preloadDynamicChunks: isSriObject ? (sri.preloadDynamicChunks ?? true) : true,
+    runtimePatchDynamicLinks: isSriObject
+      ? (sri.runtimePatchDynamicLinks ?? true)
+      : true,
+    preloadDynamicChunks: isSriObject
+      ? (sri.preloadDynamicChunks ?? true)
+      : true,
     skipResources: isSriObject ? (sri.skipResources ?? []) : [],
     crossorigin: isSriObject ? sri.crossorigin : undefined,
   };
@@ -119,7 +128,7 @@ export default function vitePluginCSP(
       viteVersion = this.meta.viteVersion;
       if (!viteVersion) {
         throw new Error(
-          "Please ensure your using a minimum version of vite 7.0.0.",
+          "Please ensure you're using a minimum version of vite 8.0.0.",
         );
       }
     },
@@ -231,14 +240,18 @@ export default function vitePluginCSP(
     },
     generateBundle: {
       order: "post",
-      handler(_options, bundle: OutputBundle) {
+      handler(_options, bundle: Rolldown.OutputBundle) {
         if (!sriConfig.enabled || isDevMode) return;
+
+        // SRI helpers are typed against Rollup's OutputBundle; Vite 8 passes Rolldown's
+        // bundle (compatible at runtime, distinct types).
+        const rollupBundle = bundle as unknown as RollupOutputBundle;
 
         try {
           if (debug) console.log("[SRI] Processing bundle for lazy chunk SRI...");
 
           // 1. Build initial integrity map (for non-entry chunks and assets)
-          let sriByPathname = buildIntegrityMappings(bundle, algorithm, debug);
+          let sriByPathname = buildIntegrityMappings(rollupBundle, algorithm, debug);
 
           // 2. Inject runtime into entry chunks FIRST - before we hash them for HTML
           //    (the integrity in HTML must match the final file content)
@@ -263,7 +276,11 @@ export default function vitePluginCSP(
             }
 
             // Rebuild integrity map so entry chunks have correct hashes (with runtime)
-            const newSriByPathname = buildIntegrityMappings(bundle, algorithm, debug);
+            const newSriByPathname = buildIntegrityMappings(
+              rollupBundle,
+              algorithm,
+              debug,
+            );
             for (const [fileName, item] of Object.entries(bundle)) {
               if (item.type !== "chunk") continue;
               const chunk = item as { type: "chunk"; isEntry?: boolean };
@@ -281,7 +298,7 @@ export default function vitePluginCSP(
             sriByPathname = newSriByPathname;
           }
 
-          const dynamicChunkFiles = analyzeDynamicImports(bundle, debug);
+          const dynamicChunkFiles = analyzeDynamicImports(rollupBundle, debug);
 
           const base = resolvedConfig?.base ?? "/";
           const baseNorm = base.endsWith("/") ? base.slice(0, -1) : base;
