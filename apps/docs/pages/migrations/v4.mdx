@@ -4,6 +4,7 @@
 
 - Support for Vite 8
 - Drops support for Vite 7
+- **`transformPolicy` (optional):** A hook that runs after the final CSP string is computed, so you can write it to provider config (for example Vercel, Amplify, or Cloudflare) and optionally **omit** the `<meta http-equiv="Content-Security-Policy">` when you serve the policy as an HTTP header instead. See [API — `transformPolicy`](/api-docs#transformpolicy).
 
 ## Required changes
 

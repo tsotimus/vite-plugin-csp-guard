@@ -212,3 +212,65 @@ This option serves as the default override behavior for both development and pro
 <Callout type="info">
   **Environment-Specific Control:** The `dev.override` and `build.override` options take precedence over this top-level setting. This allows you to have different override behaviors in development vs production (e.g., merge in dev for easier debugging, but use only your policy in production for strict security).
 </Callout>
+
+### transformPolicy
+
+<Callout type="info">
+  **Added in v4.** Not available in v3 or earlier.
+</Callout>
+
+- **Type:** `(cspString: string, meta: TransformPolicyMeta) => string | null | undefined | void`
+- **Default:** `undefined` (hook not used; the plugin injects a `<meta http-equiv="Content-Security-Policy">` as usual)
+
+After the final CSP string is computed—including all generated hashes—this function runs. Use it to sync the policy to host-specific files (for example `vercel.json`, `customHttp.yml` on AWS Amplify, or Cloudflare `_headers`) while `vite build` still has the complete string.
+
+The second argument, `meta`, has:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `command` | `"build" \| "serve"` | `"build"` during `vite build`, `"serve"` during `vite dev` (when the plugin runs with `dev.run: true`) |
+| `algorithm` | `"sha256" \| "sha384" \| "sha512"` | The hashing algorithm in use |
+
+**Return value and `<meta>` injection:**
+
+- Return `undefined` (or omit a return) to **keep the default**: inject a meta tag using the **generated** policy string unchanged.
+- Return a `string` to use that value as the meta tag `content` (replace the generated string for the tag only; useful if you need to adjust quoting or a subset for local testing).
+- Return `null` to **skip** injecting the `<meta>` tag entirely. Use this when the real policy is sent as an **HTTP** `Content-Security-Policy` response header, which supports directives that meta tags cannot (for example `frame-ancestors`, `report-uri`, `report-to`).
+
+<Callout type="warning">
+  The hook still runs in dev when `dev.run` is `true`, so any file writes run on each policy refresh. Guard side effects (e.g. only write when `meta.command === "build"`) if you need to avoid touching deploy config on every HMR.
+</Callout>
+
+#### Example: write deploy config and skip the meta tag
+
+```ts
+import * as fs from "node:fs";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import csp from "vite-plugin-csp-guard";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    csp({
+      policy: {
+        "default-src": ["'self'"],
+        "script-src-elem": ["'self'"],
+        "style-src-elem": ["'self'"],
+      },
+      transformPolicy: (cspString, meta) => {
+        if (meta.command === "build") {
+          // Example: emit a file your host reads at deploy time
+          fs.writeFileSync(
+            "csp-built.txt",
+            cspString,
+            "utf8",
+          );
+        }
+        // Headers-only delivery in production: do not duplicate policy in HTML
+        return null;
+      },
+    }),
+  ],
+});
+```
