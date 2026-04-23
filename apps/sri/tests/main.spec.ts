@@ -14,12 +14,12 @@ test("Loaded main content", async ({ page }) => {
 
 test("Lazy-loaded Home component renders", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("h3", { hasText: "Home" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Home", exact: true })).toBeVisible();
 });
 
 test("Lazy-loaded Home2 component renders", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("h3", { hasText: "Home 2" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Home 2", exact: true })).toBeVisible();
 });
 
 test("Home2 click counter works", async ({ page }) => {

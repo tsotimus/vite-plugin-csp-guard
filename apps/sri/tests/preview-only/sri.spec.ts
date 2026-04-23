@@ -38,7 +38,9 @@ test.describe("SRI integrity", () => {
     await page.goto("/");
 
     // Wait for lazy components to load
-    await expect(page.locator("h3", { hasText: "Home 2" })).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByRole("heading", { name: "Home 2", exact: true })
+    ).toBeVisible({ timeout: 5000 });
 
     expect(
       integrityErrors,
