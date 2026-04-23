@@ -4,9 +4,49 @@ import {Callout} from "nextra-theme-docs";
 
 This will hopefully help you build your CSP policy.
 
+## Defining your policy with type-safe primitives (recommended)
+
+Vite Plugin CSP Guard uses [csp-toolkit](https://www.npmjs.com/package/csp-toolkit) under the hood. From **csp-toolkit 1.5**, use **`definePolicy`** with **camelCase** directive keys and small helpers for keywords and schemes. The library turns those into the quoted source expressions the browser expects (for example `'self'`, `data:`).
+
+```ts
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import csp from "vite-plugin-csp-guard"
+import { definePolicy, self, data } from "csp-toolkit"
+
+export default defineConfig({
+  plugins: [
+    react(),
+    csp({
+      policy: definePolicy({
+        defaultSrc: [self],
+        imgSrc: [self, data],
+        scriptSrc: ["https://www.google-analytics.com"],
+      }),
+    }),
+  ],
+})
+```
+
+You can still use a **plain object** with kebab-case keys and string sources if you prefer; both shapes are valid for the `policy` option. See the [V4 migration notes](/migrations/v4#optional-the-new-definepolicy-api) for a before/after comparison.
 
 ## Default Policies
 We do this so you don't have to worry about the basics. These are merged with your custom policies.
+
+In **csp-toolkit** terms, the build defaults are equivalent to:
+
+```ts
+import { definePolicy, self } from "csp-toolkit"
+
+definePolicy({
+  defaultSrc: [self],
+  imgSrc: [self],
+  scriptSrcElem: [self],
+  styleSrcElem: [self],
+})
+```
+
+(As raw directive strings, the same idea is:)
 
 ```ts
 "default-src": ["'self'"],
@@ -20,7 +60,7 @@ We do this so you don't have to worry about the basics. These are merged with yo
 </Callout>
 
 <Callout type="info">
-   In dev mode `"data:"` is added to `"img-src"` for your convenience 
+   In dev mode `data` (the `data:` scheme) is added to `imgSrc` for your convenience
 </Callout>
 
 
@@ -28,7 +68,7 @@ We do this so you don't have to worry about the basics. These are merged with yo
 
 #### Third party javascript
 
-Third party code like, Google Analytics, Hotjar, etc. are common in most websites. You can use the `script-src` directive to allow these scripts to run.
+Third party code like, Google Analytics, Hotjar, etc. are common in most websites. You can use the `scriptSrc` directive to allow these scripts to run.
 
 <Callout type="warning">
     When doing this you are essentially trusting third party code to run on your website. Make sure you trust these third parties as you are explicitly giving them permission to run code on your site
@@ -39,15 +79,16 @@ Third party code like, Google Analytics, Hotjar, etc. are common in most website
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import csp from "vite-plugin-csp-guard";
+import { definePolicy } from "csp-toolkit";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     csp({
-        policy: {
-            "script-src": ["https://www.google-analytics.com"],
-        }
+        policy: definePolicy({
+            scriptSrc: ["https://www.google-analytics.com"],
+        }),
     }),
   ],
 });
@@ -58,7 +99,7 @@ export default defineConfig({
 </Callout>
 
 #### Third party css
-Third party styles, that are injected at runtime are also common in most websites. You can use the `style-src` directive to allow these styles to be applied.
+Third party styles, that are injected at runtime are also common in most websites. You can use the `styleSrc` directive to allow these styles to be applied.
 
 
 ```ts
@@ -66,15 +107,16 @@ Third party styles, that are injected at runtime are also common in most website
 import { defineConfig, PluginOption } from "vite";
 import react from "@vitejs/plugin-react";
 import csp from "vite-plugin-csp-guard";
+import { definePolicy } from "csp-toolkit";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     csp({
-        policy: {
-            "style-src": ["https://example.com/styles/main.css"],
-        }
+        policy: definePolicy({
+            styleSrc: ["https://example.com/styles/main.css"],
+        }),
     }),
   ],
 });

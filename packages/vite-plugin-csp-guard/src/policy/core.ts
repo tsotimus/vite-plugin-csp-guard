@@ -106,8 +106,8 @@ export const calculateSkip = (policy: CSPPolicy | undefined): ShouldSkip => {
 
   keysToCheck.forEach((key) => {
     if (
-      policy[key]?.includes("unsafe-inline") ||
-      policy[key]?.includes("unsafe-eval")
+      policy[key]?.includes("'unsafe-inline'") ||
+      policy[key]?.includes("'unsafe-eval'")
     ) {
       defaultShouldSkip[key] = true;
     }
