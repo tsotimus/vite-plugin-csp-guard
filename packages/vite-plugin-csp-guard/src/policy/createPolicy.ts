@@ -1,6 +1,14 @@
 import { HtmlTagDescriptor } from "vite";
 import { HashCollection } from "../types";
-import { policyToString, CSPPolicy} from "csp-toolkit";
+import { policyToString, CSPPolicy } from "csp-toolkit";
+
+const ELEM_PARENT_MAP = {
+  "script-src-elem": "script-src",
+  "style-src-elem": "style-src",
+} as const;
+
+/** Keywords that must not be copied from parent script-src / style-src into -elem directives. */
+const SKIP_WHEN_INHERITING = new Set(["'unsafe-eval'"]);
 
 type GeneratePolicyProps = {
   policy: CSPPolicy;
@@ -23,8 +31,16 @@ export const generatePolicyString = ({
     }
 
     if (currentMap.size > 0) {
+      const parentKey =
+        ELEM_PARENT_MAP[key as keyof typeof ELEM_PARENT_MAP];
+      const parentSources = parentKey ? (finalPolicy[parentKey] ?? []) : [];
+      const inheritedSources = parentSources.filter(
+        (s) => !SKIP_WHEN_INHERITING.has(s) && !currentPolicy.includes(s),
+      );
+
       finalPolicy[key as keyof CSPPolicy] = [
         ...currentPolicy,
+        ...inheritedSources,
         ...Array.from(currentMap.keys()),
       ];
     }
