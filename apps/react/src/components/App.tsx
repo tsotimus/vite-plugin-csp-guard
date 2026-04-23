@@ -1,9 +1,8 @@
-import { useState, lazy } from "react";
+import { useState } from "react";
 import reactLogo from "../assets/react.svg";
 import viteLogo from "/vite.svg";
+import Injector from "./Injector";
 import "./App.css";
-
-const Home = lazy(() => import("./Home"));
 
 function App() {
   const [count, setCount] = useState(0);
@@ -19,9 +18,15 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
-      <Home />
+      <div>
+        <h3>Home</h3>
+        <Injector />
+      </div>
       <div className="card">
-        <button style={{backgroundColor: "red"}} onClick={() => setCount((count) => count + 1)}>
+        <button
+          style={{ backgroundColor: "red" }}
+          onClick={() => setCount((count) => count + 1)}
+        >
           count is {count}
         </button>
         <p>

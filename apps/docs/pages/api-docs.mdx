@@ -6,6 +6,8 @@ This is the API documentation for this plugin. Here you will find all the option
 
 ## Example
 
+### Basic Example
+
 ```ts
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -33,6 +35,36 @@ export default defineConfig({
 });
 ```
 
+### Example with Environment-Specific Override
+
+```ts
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import csp from "vite-plugin-csp-guard";
+
+export default defineConfig({
+  plugins: [
+    react(),
+    csp({
+      algorithm: "sha256",
+      dev: {
+        run: true,
+        override: false, // RECOMMENDED: Merge with defaults so dev mode works properly
+      },
+      build: {
+        sri: true,
+        override: true, // Use only custom policy in production for strict control
+      },
+      policy: {
+        "script-src": ["'self'", "https://www.google-analytics.com"],
+        "style-src-elem": ["'self'", "https://fonts.googleapis.com"],
+        "font-src": ["'self'", "https://fonts.gstatic.com"],
+      },
+    }),
+  ],
+});
+```
+
 ## Options
 
 ### algorithm
@@ -48,12 +80,12 @@ export default defineConfig({
 ### dev
 
 - Type: `object`
-- Default: `{run: false, outlierSupport: []}`
+- Default: `{run: false, outlierSupport: [], override: undefined}`
 - Description: The options for the dev server.
 
 #### dev properties
 
-<Tabs items={['run', 'outlierSupport']} defaultIndex="0">
+<Tabs items={['run', 'outlierSupport', 'override']} defaultIndex="0">
   <Tabs.Tab>
     ### `run`
     - **Type:** `boolean`
@@ -91,6 +123,21 @@ export default defineConfig({
     </Callout>
 
   </Tabs.Tab>
+  <Tabs.Tab>
+    ### `override`
+    - **Type:** `boolean`
+    - **Default:** `undefined` (falls back to top-level `override`)
+    - **Description:** Override the default dev policy in development mode. When set to `true`, only your custom policy will be used. When set to `false`, your policy will be merged with the default dev policy. If not specified, falls back to the top-level `override` option.
+
+    <Callout type="warning">
+      **Important:** Setting `dev.override: true` will likely cause dev mode to not work properly! The plugin needs to merge with the default dev policy (which includes `'self'` for `script-src-elem` and `style-src-elem`) to ensure that generated hashes are properly collected and dev server assets load correctly. Only use `dev.override: true` if you fully understand the implications and are willing to manually manage all required CSP directives.
+    </Callout>
+
+    <Callout type="info">
+      **Recommended:** Keep `dev.override: false` (or leave it undefined to use the default merging behavior) to ensure smooth development experience with automatic hash collection.
+    </Callout>
+
+  </Tabs.Tab>
 </Tabs>
 
 ### policy
@@ -120,10 +167,10 @@ You can read our guide for creating a policy [here](/guides/policy)
 ### build
 
 - Type: `object`
-- Default: `{sri: false, outlierSupport: []}`
+- Default: `{sri: false, outlierSupport: [], override: undefined}`
 - Description: Options that apply only when running `vite build`.
 
-<Tabs items={["sri", "outlierSupport"]} defaultIndex="0">
+<Tabs items={["sri", "outlierSupport", "override"]} defaultIndex="0">
   <Tabs.Tab>
     ### `sri` - **Type:** `boolean` - **Default:** `false` - **Description:**
     Determines if the plugin should hash the JS code during the build process.
@@ -141,10 +188,27 @@ You can read our guide for creating a policy [here](/guides/policy)
       - `vue-router`
 
   </Tabs.Tab>
+  <Tabs.Tab>
+    ### `override`
+    - **Type:** `boolean`
+    - **Default:** `undefined` (falls back to top-level `override`)
+    - **Description:** Override the default build policy in production builds. When set to `true`, only your custom policy will be used. When set to `false`, your policy will be merged with the default policy. If not specified, falls back to the top-level `override` option.
+
+    <Callout type="info">
+      Use `build.override: true` when you want complete control over your production CSP policy without any plugin defaults. Make sure your policy includes all necessary directives for your application to function properly.
+    </Callout>
+
+  </Tabs.Tab>
 </Tabs>
 
 ### override
 
 - Type: `boolean`
 - Default: `false`
-- Description: This is a flag to override the default policy. When set to false, the plugin will merge the default policy (provided by the plugin) with your policy. When set to true, the plugin will **only** use your policy only.
+- Description: This is a flag to override the default policy. When set to `false`, the plugin will merge the default policy (provided by the plugin) with your policy. When set to `true`, the plugin will **only** use your policy.
+
+This option serves as the default override behavior for both development and production. You can override this on a per-environment basis using `dev.override` or `build.override` for more granular control.
+
+<Callout type="info">
+  **Environment-Specific Control:** The `dev.override` and `build.override` options take precedence over this top-level setting. This allows you to have different override behaviors in development vs production (e.g., merge in dev for easier debugging, but use only your policy in production for strict security).
+</Callout>

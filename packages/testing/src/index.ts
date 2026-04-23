@@ -72,13 +72,13 @@ export const cspGenerationTest = (expectedPolicy: CSPPolicy) => {
 
 /**
  * Generates a test to validate that SRI is enabled and working
+ * @param scriptSelector - Optional selector for the main script (default: script[src*="/assets/"][type="module"])
  */
-export const sriTest = () => {
+export const sriTest = (scriptSelector = 'script[src*="/assets/"][type="module"]') => {
   test("SRI is enabled and working", async ({ page }) => {
     await page.goto("/");
 
-    // Update the selector to match the actual script tag
-    const script = page.locator('script[src^="/assets/index-"]'); // Match script src that starts with "/assets/index-"
+    const script = page.locator(scriptSelector).first();
     const integrity = await script.getAttribute("integrity");
 
     // Check if the integrity attribute is not null, ensuring SRI is enabled
