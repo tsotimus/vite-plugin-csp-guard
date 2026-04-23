@@ -4,70 +4,48 @@ on:
     branches: [main]
 
 jobs:
-  get_packages:
-    name: "Get Packages to Release"
-    runs-on: ubuntu-latest
-    outputs:
-      packages: ${{ steps.filter_packages.outputs.changed_packages }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0  # Fetch the full history to ensure HEAD^1 is available
-
-      - name: Set up environment
-        uses: ./.github/actions/setup-env
-        with:
-          node-version: "23"  # Specify the Node.js version
-
-      - name: Filter changed packages
-        id: filter_packages
-        run: |
-          chmod +x ./scripts/version-has-changed.sh
-          chmod +x ./scripts/packages-to-release.sh
-          packages=$(./scripts/packages-to-release.sh)
-          changed_packages=$(./scripts/version-has-changed.sh HEAD^1 HEAD "$packages")
-          echo "Changed Packages: $changed_packages"
-          echo "changed_packages=$changed_packages" >> $GITHUB_OUTPUT
-
   build_and_test:
     name: "Build and Test"
     runs-on: ubuntu-latest
-    needs: get_packages  # Ensures this job runs after get_packages
-    strategy:
-      matrix:
-        package: ${{ fromJson(needs.get_packages.outputs.packages) }}
+    outputs:
+      should_publish: ${{ steps.version_gate.outputs.should_publish }}
+    env:
+      PUBLISHABLE_PACKAGE: vite-plugin-csp-guard
+      PACKAGE_DIR: packages/vite-plugin-csp-guard
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Fetch the full history to ensure HEAD^1 is available
+          fetch-depth: 0 # Fetch the full history to ensure HEAD^1 is available
+
+      - name: Detect version bump for npm publish
+        id: version_gate
+        run: |
+          diff_output=$(git diff HEAD^1 HEAD -- "$PACKAGE_DIR/package.json" || true)
+          if [[ "$diff_output" == *'"version":'* ]]; then
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Set up environment
         uses: ./.github/actions/setup-env
         with:
-          node-version: "23"   # Specify the Node.js version
+          node-version: "23"
 
-      - name: Get package path
-        id: get_package_path
-        run: |
-          chmod +x ./scripts/get-package-path.sh  # Ensure the script is executable
-          package_path=$(./scripts/get-package-path.sh ${{ matrix.package }})
-          echo "PACKAGE_PATH=$package_path" >> $GITHUB_OUTPUT
-
-      - name: Build all packages
-        run: pnpm p:build # Builds all packages
+      - name: Build plugin package
+        run: pnpm p:build
 
       - name: Archive production artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: package-dist-${{ matrix.package }}
+          name: package-dist
           retention-days: 30
-          path: ${{ steps.get_package_path.outputs.PACKAGE_PATH }}/dist
+          path: ${{ env.PACKAGE_DIR }}/dist
 
       - name: Run Unit Tests
-        run: pnpm p:test # Tests all packages
+        run: pnpm p:test
 
       - name: Build Apps
         run: pnpm build
@@ -81,48 +59,42 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{ matrix.package }}
+          name: playwright-report
           path: playwright-report/
           retention-days: 5
 
   publish:
     runs-on: ubuntu-latest
-    needs: [get_packages, build_and_test]
-    strategy:        
-      matrix:
-        package: ${{ fromJson(needs.get_packages.outputs.packages) }}
+    needs: build_and_test
+    if: needs.build_and_test.outputs.should_publish == 'true'
     name: "Publish"
     permissions:
       contents: write
       id-token: write
+    env:
+      PACKAGE_DIR: packages/vite-plugin-csp-guard
+      PUBLISHABLE_PACKAGE: vite-plugin-csp-guard
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0  # Fetch the full history to ensure HEAD^1 is available
+          fetch-depth: 0
 
       - name: Set up environment
         uses: ./.github/actions/setup-env
         with:
-          node-version: "23"   # Specify the Node.js version
-
-      - name: Get package path
-        id: get_package_path
-        run: |
-          chmod +x ./scripts/get-package-path.sh  # Ensure the script is executable
-          package_path=$(./scripts/get-package-path.sh ${{ matrix.package }})
-          echo "PACKAGE_PATH=$package_path" >> $GITHUB_OUTPUT
+          node-version: "23"
 
       - name: Download production artifacts
         uses: actions/download-artifact@v4
         with:
-          name: package-dist-${{ matrix.package }}
-          path: ${{ steps.get_package_path.outputs.PACKAGE_PATH }}/dist
+          name: package-dist
+          path: ${{ env.PACKAGE_DIR }}/dist
 
       - uses: JS-DevTools/npm-publish@v4.1.5
         id: publish
         with:
-          package: ${{ steps.get_package_path.outputs.PACKAGE_PATH }}
+          package: ${{ env.PACKAGE_DIR }}
 
       - name: Bump version and push tag
         if: ${{ steps.publish.outputs.type }}
@@ -131,7 +103,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           custom_tag: v${{ steps.publish.outputs.version }}
-          tag_prefix: ${{ matrix.package }}_
+          tag_prefix: ${{ env.PUBLISHABLE_PACKAGE }}_
 
       - name: Create a GitHub release
         if: ${{ steps.publish.outputs.type }}
