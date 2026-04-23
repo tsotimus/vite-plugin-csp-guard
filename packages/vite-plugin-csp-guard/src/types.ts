@@ -89,6 +89,16 @@ export type BuildOptions = {
   override?: boolean;
 };
 
+/**
+ * Passed as the second argument to {@link MyPluginOptions.transformPolicy}.
+ */
+export type TransformPolicyMeta = {
+  /** `"build"` during `vite build`, `"serve"` during `vite dev` */
+  command: "build" | "serve";
+  /** Hash algorithm used (sha256 / sha384 / sha512) */
+  algorithm: HashAlgorithms;
+};
+
 export type MyPluginOptions = {
   /**
    * What hashing algorithm to use. Default is sha-256.
@@ -141,6 +151,19 @@ export type MyPluginOptions = {
    * Debug is meant for plugin developers only
    */
   debug?: boolean;
+  /**
+   * Called after the final CSP string is computed (including all generated hashes).
+   * Use the string to write provider-specific config, then return `null` to skip
+   * injecting a `<meta http-equiv="Content-Security-Policy">` (e.g. when serving CSP via headers).
+   *
+   * - Return `undefined` to keep the default: inject a meta tag with the original policy string.
+   * - Return a `string` to use that value as the meta tag `content` (replacing the default).
+   * - Return `null` to skip meta tag injection entirely.
+   */
+  transformPolicy?: (
+    cspString: string,
+    meta: TransformPolicyMeta,
+  ) => string | null | undefined | void;
 };
 
 export type HashCache = {
