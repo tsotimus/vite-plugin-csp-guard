@@ -39,7 +39,7 @@
     "postcss": "^8.4.38",
     "vite": "catalog:",
     "vite-plugin-csp-guard": "workspace:^",
-    "vite-tsconfig-paths": "^4.2.1"
+    "vite-tsconfig-paths": "^6.1.1"
   },
   "engines": {
     "node": ">=20.0.0"
