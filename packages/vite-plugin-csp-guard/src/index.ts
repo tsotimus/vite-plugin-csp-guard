@@ -16,7 +16,11 @@ import {
   overrideChecker,
   generateHash,
 } from "./policy/core";
-import { transformHandler, transformIndexHtmlHandler } from "./transform";
+import {
+  applyPendingTransformPolicy,
+  transformHandler,
+  transformIndexHtmlHandler,
+} from "./transform";
 import {
   cssFilter,
   jsFilter,
@@ -77,6 +81,12 @@ export default function vitePluginCSP(
     crossorigin: isSriObject ? sri.crossorigin : undefined,
   };
 
+  const sriRuntimeOptions = `{crossorigin:${
+    sriConfig.crossorigin ? JSON.stringify(sriConfig.crossorigin) : "undefined"
+  },skipResources:${JSON.stringify(sriConfig.skipResources)}}`;
+  const sriRuntimeFingerprint =
+    `${installSriRuntime.toString()}|${sriRuntimeOptions}|${algorithm}`;
+
   const CORE_COLLECTION = createNewCollection();
 
   const overrideIsFine = overrideChecker({
@@ -96,6 +106,10 @@ export default function vitePluginCSP(
 
   // Storage for final chunk hashes calculated in renderChunk hook
   const chunkHashes = new Map<string, string>();
+
+  // Chunk hashes added to the CSP before Vite fills the preload lists. The post
+  // generateBundle hook swaps them for hashes of the final chunk code.
+  const provisionalChunkHashes = new Map<string, string>();
 
   const requirements = parseOutliers(outlierSupport, buildOutlierSupport);
   const shouldSkip = calculateSkip(policy);
@@ -127,6 +141,7 @@ export default function vitePluginCSP(
     enforce: "post",
     buildStart() {
       pluginContext = this;
+      provisionalChunkHashes.clear();
       viteVersion = this.meta.viteVersion;
       if (!viteVersion) {
         throw new Error(
@@ -242,6 +257,18 @@ export default function vitePluginCSP(
         return null;
       },
     },
+    augmentChunkHash(chunk) {
+      if (isDevMode || !sriConfig.enabled) return;
+      const salt: string[] = [];
+      if (sriConfig.runtimePatchDynamicLinks && chunk.isEntry) {
+        salt.push(sriRuntimeFingerprint);
+      }
+      // 4.0.x cleared these preload lists, so cached copies need new names.
+      if (!shouldSkip["script-src-elem"] && chunk.dynamicImports.length > 0) {
+        salt.push("vite-plugin-csp-guard:preload-lists-kept");
+      }
+      return salt.length ? salt.join("\n") : undefined;
+    },
     generateBundle: {
       order: "post",
       handler(_options, bundle: Rolldown.OutputBundle) {
@@ -250,6 +277,10 @@ export default function vitePluginCSP(
         // SRI helpers are typed against Rollup's OutputBundle; Vite 8 passes Rolldown's
         // bundle (compatible at runtime, distinct types).
         const rollupBundle = bundle as unknown as RollupOutputBundle;
+        const htmlAssets: {
+          asset: { type: "asset"; source: string | Buffer };
+          html: string;
+        }[] = [];
 
         try {
           if (debug) console.log("[SRI] Processing bundle for lazy chunk SRI...");
@@ -259,14 +290,10 @@ export default function vitePluginCSP(
 
           // 2. Inject runtime into entry chunks FIRST - before we hash them for HTML
           //    (the integrity in HTML must match the final file content)
-          const hashReplacements: { old: string; new: string }[] = [];
           if (sriConfig.runtimePatchDynamicLinks) {
             const serializedMap = JSON.stringify(sriByPathname);
-            const cors = sriConfig.crossorigin
-              ? JSON.stringify(sriConfig.crossorigin)
-              : "undefined";
-            const skip = JSON.stringify(sriConfig.skipResources);
-            const injected = `\n(${installSriRuntime.toString()})(${serializedMap},{crossorigin:${cors},skipResources:${skip}});\n`;
+            const injected =
+              `\n(${installSriRuntime.toString()})(${serializedMap},${sriRuntimeOptions});\n`;
 
             for (const [fileName, item] of Object.entries(bundle)) {
               if (item.type !== "chunk") continue;
@@ -280,26 +307,21 @@ export default function vitePluginCSP(
             }
 
             // Rebuild integrity map so entry chunks have correct hashes (with runtime)
-            const newSriByPathname = buildIntegrityMappings(
+            sriByPathname = buildIntegrityMappings(
               rollupBundle,
               algorithm,
               debug,
             );
-            for (const [fileName, item] of Object.entries(bundle)) {
-              if (item.type !== "chunk") continue;
-              const chunk = item as { type: "chunk"; isEntry?: boolean };
-              if (!chunk.isEntry) continue;
-              const pathname = `/${fileName}`;
-              const oldIntegrity = sriByPathname[pathname];
-              const newIntegrity = newSriByPathname[pathname];
-              if (oldIntegrity && newIntegrity && oldIntegrity !== newIntegrity) {
-                hashReplacements.push({
-                  old: oldIntegrity,
-                  new: newIntegrity,
-                });
-              }
-            }
-            sriByPathname = newSriByPathname;
+          }
+
+          const hashReplacements: { old: string; new: string }[] = [];
+          for (const [fileName, provisional] of provisionalChunkHashes) {
+            const chunk = bundle[fileName];
+            if (chunk?.type !== "chunk") continue;
+            hashReplacements.push({
+              old: `${algorithm}-${provisional}`,
+              new: `${algorithm}-${generateHash(chunk.code, algorithm)}`,
+            });
           }
 
           const dynamicChunkFiles = analyzeDynamicImports(rollupBundle, debug);
@@ -331,13 +353,24 @@ export default function vitePluginCSP(
               sriConfig.crossorigin,
               sriConfig.skipResources,
               debug,
-              hashReplacements
+              hashReplacements,
             );
 
-            asset.source = processed;
+            htmlAssets.push({ asset, html: processed });
           }
         } catch (e) {
-          console.error("[SRI] Error:", e);
+          const message = e instanceof Error ? e.message : String(e);
+          this.error(
+            new Error(`SRI processing failed: ${message}`, { cause: e }),
+          );
+        }
+
+        for (const { asset, html } of htmlAssets) {
+          asset.source = applyPendingTransformPolicy(
+            html,
+            cspContext,
+            transformPolicy,
+          );
         }
       },
     },
@@ -373,6 +406,7 @@ export default function vitePluginCSP(
           cspContext,
           sri: sriConfig.enabled,
           chunkHashes,
+          provisionalChunkHashes,
           transformPolicy,
         });
       },

@@ -50,24 +50,30 @@ export function processHtmlForSri(
   crossorigin?: string,
   skipResources: string[] = [],
   debug: boolean = false,
-  /** Replace old hashes with new in CSP (for entry chunks after runtime injection) */
+  /** Replace provisional CSP hashes with hashes of the final chunk code. */
   hashReplacements?: { old: string; new: string }[]
 ): string {
   const $ = cheerio.load(html);
 
-  // Update CSP meta tag: replace old entry hashes with new (after runtime injection)
+  // Swap provisional CSP hashes for final ones in a single pass. Chunks with
+  // identical code share a provisional hash but can end up with different
+  // final code, so one hash may expand into several; a single pass also never
+  // rewrites a hash that was just inserted.
   if (hashReplacements?.length) {
+    const newByOld = new Map<string, Set<string>>();
+    for (const { old, new: newHash } of hashReplacements) {
+      if (!newByOld.has(old)) newByOld.set(old, new Set());
+      newByOld.get(old)!.add(newHash);
+    }
     $('meta[http-equiv="Content-Security-Policy"]').each((_, el) => {
       const content = $(el).attr("content");
       if (!content) return;
-      let updated = content;
-      for (const { old, new: newHash } of hashReplacements) {
-        const oldQuoted = `'${old}'`;
-        const newQuoted = `'${newHash}'`;
-        if (updated.includes(oldQuoted)) {
-          updated = updated.replace(oldQuoted, newQuoted);
-        }
-      }
+      const updated = content.replace(/'([^']+)'/g, (token, source: string) => {
+        const replacements = newByOld.get(source);
+        return replacements
+          ? [...replacements].map((hash) => `'${hash}'`).join(" ")
+          : token;
+      });
       $(el).attr("content", updated);
     });
   }

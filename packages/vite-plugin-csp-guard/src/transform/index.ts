@@ -4,6 +4,7 @@ import type {
   ViteDevServer,
 } from "vite";
 import { addHash, generateHash } from "../policy/core";
+import * as cheerio from "cheerio";
 import {
   type BundleContext,
   type CSPPluginContext,
@@ -126,8 +127,11 @@ export interface TransformIndexHtmlHandlerProps {
   cspContext: CSPPluginContext;
   sri: boolean;
   chunkHashes?: Map<string, string>;
+  provisionalChunkHashes?: Map<string, string>;
   transformPolicy?: MyPluginOptions["transformPolicy"];
 }
+
+export const PENDING_POLICY_ATTR = "data-csp-guard-pending";
 
 export const transformIndexHtmlHandler = ({
   html,
@@ -137,6 +141,7 @@ export const transformIndexHtmlHandler = ({
   cspContext,
   sri,
   chunkHashes,
+  provisionalChunkHashes,
   transformPolicy,
 }: TransformIndexHtmlHandlerProps) => {
   const { algorithm, policy, collection, shouldSkip, debug, requirements } =
@@ -193,8 +198,7 @@ export const transformIndexHtmlHandler = ({
                 );
               }
             }
-            // Keep emitted chunk bytes aligned with the hash/integrity we compute.
-            currentFile.code = code;
+            // Vite fills preload lists after this hook, so hash a copy only.
             hash = generateHash(code, algorithm);
             if (debug) {
               console.log(
@@ -202,6 +206,8 @@ export const transformIndexHtmlHandler = ({
               );
             }
           }
+
+          provisionalChunkHashes?.set(fileName, hash);
 
           if (!collection["script-src-elem"].has(`${algorithm}-${hash}`)) {
             addHash({
@@ -241,16 +247,18 @@ export const transformIndexHtmlHandler = ({
     policy: policy,
   });
 
-  let effectivePolicyString: string | null = rawPolicy;
-  if (transformPolicy) {
-    const meta: TransformPolicyMeta = {
-      command: cspContext.isDevMode ? "serve" : "build",
-      algorithm: cspContext.algorithm,
+  if (transformPolicy && bundle && sri) {
+    return {
+      html: handleCSPInsert(newHtml, rawPolicy, PENDING_POLICY_ATTR),
+      tags: [],
     };
-    const result = transformPolicy(rawPolicy, meta);
-    effectivePolicyString = result === undefined ? rawPolicy : result;
   }
 
+  const effectivePolicyString = applyTransformPolicy(
+    rawPolicy,
+    cspContext,
+    transformPolicy,
+  );
   const changedHtml =
     effectivePolicyString != null
       ? handleCSPInsert(newHtml, effectivePolicyString)
@@ -265,4 +273,43 @@ export const transformIndexHtmlHandler = ({
   //   html: newHtml,
   //   tags: InjectedHtmlTags,
   // };
+};
+
+const applyTransformPolicy = (
+  rawPolicy: string,
+  cspContext: CSPPluginContext,
+  transformPolicy: MyPluginOptions["transformPolicy"],
+): string | null => {
+  if (!transformPolicy) return rawPolicy;
+  const meta: TransformPolicyMeta = {
+    command: cspContext.isDevMode ? "serve" : "build",
+    algorithm: cspContext.algorithm,
+  };
+  const result = transformPolicy(rawPolicy, meta);
+  return result === undefined ? rawPolicy : result;
+};
+
+export const applyPendingTransformPolicy = (
+  html: string,
+  cspContext: CSPPluginContext,
+  transformPolicy: MyPluginOptions["transformPolicy"],
+): string => {
+  const $ = cheerio.load(html);
+  const pending = $(`meta[${PENDING_POLICY_ATTR}]`);
+  if (!pending.length) return html;
+  pending.each((_, element) => {
+    const $element = $(element);
+    const result = applyTransformPolicy(
+      $element.attr("content") ?? "",
+      cspContext,
+      transformPolicy,
+    );
+    if (result == null) {
+      $element.remove();
+      return;
+    }
+    $element.attr("content", result);
+    $element.removeAttr(PENDING_POLICY_ATTR);
+  });
+  return $.html();
 };

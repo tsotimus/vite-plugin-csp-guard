@@ -142,9 +142,16 @@ export function handleIndexHtml({
 }
 
 // Used for Vite 6 workaround
-export const handleCSPInsert = (html: string, policy: string) => {
+export const handleCSPInsert = (
+  html: string,
+  policy: string,
+  markerAttr?: string,
+) => {
   const $ = cheerio.load(html);
-  const metaTag = `<meta http-equiv="Content-Security-Policy" content="${policy}">`;
+  const metaTag = $("<meta>")
+    .attr("http-equiv", "Content-Security-Policy")
+    .attr("content", policy);
+  if (markerAttr) metaTag.attr(markerAttr, "");
   $("head").prepend(metaTag);
   return $.html();
 };
